@@ -61,7 +61,7 @@
      };
    };
    networking.firewall.allowedTCPPorts = [ 22 ];
-networking.firewall.enable = false;
+networking.firewall.enable = true;
 
 systemd.network.enable = true;
   systemd.network.networks."10-wan" = {
