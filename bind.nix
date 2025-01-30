@@ -11,7 +11,7 @@
           $ORIGIN sileanth.eu.
           $TTL 3600
           @       IN      SOA      ns1.sileanth.eu. admin.sileanth.eu. (
-            37                ; Serial
+            40 ; Serial
             600            ; Refresh
             120           ; Retry
             3600            ; Expire
@@ -19,8 +19,8 @@
           ;
 
           ; Name servers
-          sileanth.tech.  IN  NS  ns1.sileanth.eu.
-          sileanth.tech.  IN  NS  ns2.sileanth.eu.
+          sileanth.eu.  IN  NS  ns1.sileanth.eu.
+          sileanth.eu.  IN  NS  ns2.sileanth.eu.
 
 
           ns1 IN  A 135.181.87.151
