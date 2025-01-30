@@ -38,7 +38,7 @@
         '';
       };
     };
-    services.bind.cacheNetworks = [
+    cacheNetworks = [
       "127.0.0.0/24"
       "::1/128"
     ]; # which networks are allowed to recursive query
