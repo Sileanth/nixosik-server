@@ -63,6 +63,19 @@
    networking.firewall.allowedTCPPorts = [ 22 ];
 networking.firewall.enable = false;
 
+systemd.network.enable = true;
+  systemd.network.networks."10-wan" = {
+    matchConfig.Name = "enp1s0"; # either ens3 or enp1s0 depending on system, check 'ip addr'
+    networkConfig.DHCP = "ipv4";
+    address = [
+      # replace this address with the one assigned to your instance
+      "2a01:4f9:c012:f993::1/64"
+    ];
+    routes = [
+      { routeConfig.Gateway = "fe80::1"; }
+    ];
+  };
+
 
 
    
