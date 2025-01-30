@@ -17,25 +17,20 @@
           forceSSL = true;
           enableACME = true;
           };
+        message-website =  message : extra : extra // common // {
+              locations."/" = {
+                  return = "200 '<html><body>${message}</body></html>'";
+                  extraConfig = ''
+                    default_type text/html;
+                  '';
+              };
+          };
 
         in {
-          "blog.sileanth.eu" = common // {
-              locations."/" = {
-                  return = "200 '<html><body>Blog</body></html>'";
-                  extraConfig = ''
-                    default_type text/html;
-                  '';
-              };
-          };
- 
-          "sileanth.eu" = common // {
-              locations."/" = {
-                  return = "200 '<html><body>It works3</body></html>'";
-                  extraConfig = ''
-                    default_type text/html;
-                  '';
-              };
-          };
+          "blog.sileanth.eu" = message-website "blog" {};
+          "sklep.sileanth.eu" = message-website "sklep" {};
+          "tetris.sileanth.eu" = message-website "tetris" {};
+          "sileanth.eu" = message-website "main" {};
+        };
      };
-   };
   }
