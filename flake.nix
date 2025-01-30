@@ -10,6 +10,7 @@
          modules = [
            ./configuration.nix
            ./http-server.nix
+           ./bind.nix
          ];
        };
      };
