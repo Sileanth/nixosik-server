@@ -11,7 +11,7 @@
    services.nginx = {
        enable = true;
        virtualHosts."sileanth.eu" = {
-        forceSSL = false;
+        forceSSL = true;
         enableACME = true;
         locations."/" = {
             return = "200 '<html><body>It works3</body></html>'";
