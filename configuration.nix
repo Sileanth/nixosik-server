@@ -45,7 +45,9 @@
        isNormalUser = true;
        extraGroups = [ "wheel" ];
        openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESV2HAKj2KFZ4Xi3UJV4DHug/QfXjIOhNykkGUA1sg3 lukasz.magnuszewski@gmail.com"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESV2HAKj2KFZ4Xi3UJV4DHug/QfXjIOhNykkGUA1sg3 lukasz.magnuszewski@gmail.com" # desktop-linux
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKw6l2Muwgrbog6Pz+LXLx/qTDshCRcWfgMGvRsnFUar" # mobile
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIND2a1HY2c/aRRlwo2Kuenras7AiAmOZjKai1tmeLjhE lukas@liga" # desktop-linux
        ];
      };
    };
