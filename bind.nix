@@ -3,7 +3,7 @@ let
       	main = vars.ip4;
 	main6 = vars.ip6;
 	ns = "158.101.202.37";
-	
+  ns6 = "2603:c022:c007:147e:3e52:9996:45b5:2127#53(2603:c022:c007:147e:3e52:9996:45b5:2127";
 in {
 
 
@@ -29,7 +29,7 @@ in {
 $ORIGIN sileanth.pl.
 $TTL 3600
 @       IN      SOA      ns1.sileanth.pl. admin.sileanth.pl. (
-43 ; Serial
+44 ; Serial
 600            ; Refresh
 120           ; Retry
 3600            ; Expire
@@ -43,6 +43,7 @@ sileanth.pl.  IN  NS  ns2.sileanth.pl.
 
 ns1 IN  A ${main}
 ns1 IN  AAAA ${main6}
+ns2 IN  AAAA ${ns6}
 ns2 IN  A ${ns}
 
 
