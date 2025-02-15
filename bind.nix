@@ -29,7 +29,7 @@ in {
 $ORIGIN sileanth.pl.
 $TTL 3600
 @       IN      SOA      ns1.sileanth.pl. admin.sileanth.pl. (
-44 ; Serial
+45 ; Serial
 600            ; Refresh
 120           ; Retry
 3600            ; Expire
@@ -50,6 +50,10 @@ ns2 IN  A ${ns}
 
 @ IN  A ${main}
 @ IN  AAAA ${main6}
+
+
+www IN  A ${main}
+www IN  AAAA ${main6}
 '';
   };
   networking.firewall.allowedTCPPorts = [ 53 ];
