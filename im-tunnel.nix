@@ -19,7 +19,7 @@ Match User im-tunnel
 	GatewayPorts yes
 	AllowAgentForwarding no
 	PermitOpen localhost:2222 141.148.238.80:2222
-	ForceCommand echo 'This account is restricted for ssh reverse tunnel use
+	ForceCommand echo 'This account is restricted for ssh reverse tunnel use'
 '';
 
 }
