@@ -29,7 +29,7 @@ in {
 $ORIGIN sileanth.pl.
 $TTL 3600
 @       IN      SOA      ns1.sileanth.pl. admin.sileanth.pl. (
-45 ; Serial
+55 ; Serial
 600            ; Refresh
 120           ; Retry
 3600            ; Expire
@@ -42,9 +42,9 @@ sileanth.pl.  IN  NS  ns2.sileanth.pl.
 
 
 ns1 IN  A ${main}
+ns2 IN  A ${ns}
 ns1 IN  AAAA ${main6}
 ns2 IN  AAAA ${ns6}
-ns2 IN  A ${ns}
 
 
 
