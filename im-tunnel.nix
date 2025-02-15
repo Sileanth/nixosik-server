@@ -11,6 +11,8 @@
 	};
 
 
+   networking.firewall.allowedTCPPorts = [ 2222 ];
+   networking.firewall.allowedUDPPorts = [ 2222 ];
 	services.openssh.extraConfig = ''
 Match User im-tunnel
 	AllowTcpForwarding yes
