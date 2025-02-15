@@ -29,7 +29,7 @@ in {
 $ORIGIN sileanth.pl.
 $TTL 3600
 @       IN      SOA      ns1.sileanth.pl. admin.sileanth.pl. (
-556 ; Serial
+557 ; Serial
 600            ; Refresh
 120           ; Retry
 3600            ; Expire
@@ -118,8 +118,8 @@ www.sileanth.pl. CAA 0 issue "letsencrypt.org"
 	extraConfig = ''
 		inline-signing yes;
 		dnssec-policy default;
-		key-directory "/etc/bind/keys";  
-	''; 
+		key-directory "/etc/bind/keys";
+	'';
 
         file = "/etc/bind/zones/sileanth.pl.zone";
 
