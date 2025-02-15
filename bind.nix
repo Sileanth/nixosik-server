@@ -119,7 +119,7 @@ www.sileanth.pl. CAA 0 issue "letsencrypt.org"
 		inline-signing yes;
 		dnssec-policy default;
 		key-directory "/etc/bind/keys";  
-	''; # dnssec setup, to get data for dnssec registar record run:
+	''; 
 
         file = "/etc/bind/zones/sileanth.pl.zone";
 
