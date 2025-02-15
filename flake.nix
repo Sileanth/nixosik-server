@@ -5,8 +5,14 @@
 
    outputs = { nixpkgs, ... }: {
      nixosConfigurations = {
-       hetzner-x86_64 = nixpkgs.lib.nixosSystem {
+       hetzner = let
+	vars = {
+		ip4 = "135.181.87.151";
+		ip6 = "2a01:4f9:c012:f993::1";
+	};
+       in nixpkgs.lib.nixosSystem {
          system = "x86_64-linux";
+         specialArgs = { inherit vars; };
          modules = [
            ./configuration.nix
            ./http-server.nix

@@ -1,5 +1,5 @@
 
- { pkgs, ... }:
+ { pkgs, vars, ... }:
  
  {
    nix.settings = {
@@ -8,6 +8,7 @@
    };
    
    environment.systemPackages = [
+     pkgs.neovim
      pkgs.vim
      pkgs.git
      pkgs.zip
@@ -47,7 +48,8 @@
        openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESV2HAKj2KFZ4Xi3UJV4DHug/QfXjIOhNykkGUA1sg3 lukasz.magnuszewski@gmail.com" # desktop-linux
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKw6l2Muwgrbog6Pz+LXLx/qTDshCRcWfgMGvRsnFUar" # mobile
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIND2a1HY2c/aRRlwo2Kuenras7AiAmOZjKai1tmeLjhE lukas@liga" # desktop-linux
+        "ssh-ed25520 AAAAC3NzaC1lZDI1NTE5AAAAIND2a1HY2c/aRRlwo2Kuenras7AiAmOZjKai1tmeLjhE lukas@liga" # desktop windows
+	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3a8lS=zbs7Lfddmqrr4gYEh0ilNtNJVsO9k3NpwrOH lukas2liga"
        ];
      };
    };
@@ -64,17 +66,18 @@
    };
    networking.firewall.allowedTCPPorts = [ 22 ];
 networking.firewall.enable = true;
+ networking.useNetworkd = true;
 
-systemd.network.enable = true;
+#systemd.network.enable = true;
   systemd.network.networks."10-wan" = {
     matchConfig.Name = "enp1s0"; # either ens3 or enp1s0 depending on system, check 'ip addr'
     networkConfig.DHCP = "ipv4";
     address = [
       # replace this address with the one assigned to your instance
-      "2a01:4f9:c012:f993::1/64"
+      vars.ip6
     ];
     routes = [
-      { routeConfig.Gateway = "fe80::1"; }
+      { Gateway = "fe80::1"; }
     ];
   };
 
