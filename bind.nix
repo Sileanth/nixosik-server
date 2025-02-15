@@ -3,7 +3,7 @@ let
       	main = vars.ip4;
 	main6 = vars.ip6;
 	ns = "158.101.202.37";
-  ns6 = "2603:c022:c007:147e:3e52:9996:45b5:2127#53(2603:c022:c007:147e:3e52:9996:45b5:2127";
+  ns6 = "2603:c022:c007:147e:3e52:9996:45b5:2127";
 in {
 
 
@@ -65,7 +65,7 @@ sileanth.pl.  CAA 0 issue "letsencrypt.org"
 www.sileanth.pl. CAA 0 issue "letsencrypt.org"
 
 
-@   IN  TXT   "v=spf1 a:sileanth.pl ip4:${main} ip6:${main6 }-all"
+@   IN  TXT   "v=spf1 a:sileanth.pl ip4:${main} ip6:${main6} -all"
 @ IN MX 10 mail.sileanth.tech.
 '';
   };
