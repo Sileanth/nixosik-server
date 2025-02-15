@@ -17,6 +17,7 @@
            ./configuration.nix
            ./http-server.nix
            ./bind.nix
+           ./im-tunnel.nix
          ];
        };
      };
