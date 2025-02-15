@@ -1,4 +1,4 @@
-{pkgs, ...}: 
+{pkgs, vars, ...}: 
 
 {
    users.users = {
@@ -18,7 +18,7 @@ Match User im-tunnel
 	PermitTunnel no
 	GatewayPorts yes
 	AllowAgentForwarding no
-	PermitOpen localhost:2222 141.148.238.80:2222
+	PermitOpen localhost:2222 ${vars.ip4}:2222
 	ForceCommand echo 'This account is restricted for ssh reverse tunnel use'
 '';
 
