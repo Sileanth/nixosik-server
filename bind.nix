@@ -29,7 +29,7 @@ in {
 $ORIGIN sileanth.pl.
 $TTL 3600
 @       IN      SOA      ns1.sileanth.pl. admin.sileanth.pl. (
-557 ; Serial
+558 ; Serial
 600            ; Refresh
 120           ; Retry
 3600            ; Expire
@@ -66,7 +66,7 @@ www.sileanth.pl. CAA 0 issue "letsencrypt.org"
 
 
 @   IN  TXT   "v=spf1 a:sileanth.pl ip4:${main} ip6:${main6} -all"
-@ IN MX 10 mail.sileanth.tech.
+@ IN MX 10 mail.sileanth.pl.
 '';
   };
   networking.firewall.allowedTCPPorts = [ 53 ];
