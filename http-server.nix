@@ -31,7 +31,7 @@
           "sklep.sileanth.eu" = message-website "sklep" {};
           "tetris.sileanth.eu" = message-website "tetris" {};
           "sileanth.eu" = message-website "main" {};
-	  "sileanth.pl" = message-website "pl" {};
+          "sileanth.pl" = message-website "pl" {};
         };
      };
   }
