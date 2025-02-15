@@ -27,10 +27,10 @@
           };
 
         in {
-          "blog.sileanth.eu" = message-website "blog" {};
-          "sklep.sileanth.eu" = message-website "sklep" {};
-          "tetris.sileanth.eu" = message-website "tetris" {};
-          "sileanth.eu" = message-website "main" {};
+          # "blog.sileanth.eu" = message-website "blog" {};
+          # "sklep.sileanth.eu" = message-website "sklep" {};
+          # "tetris.sileanth.eu" = message-website "tetris" {};
+          # "sileanth.eu" = message-website "main" {};
           "sileanth.pl" = message-website "pl" {};
         };
      };
