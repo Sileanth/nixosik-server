@@ -24,7 +24,15 @@
         recommendedTlsSettings = true;
 
         appendHttpConfig = ''
-              add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+            # Add HSTS header with preloading to HTTPS requests.
+            # Adding this header to HTTP requests is discouraged
+            map $scheme $hsts_header {
+              https   "max-age=31536000; includeSubdomains; preload";
+            }
+            add_header Strict-Transport-Security $hsts_header;
+
+
+
               add_header Content-Security-Policy "default-src 'self'; img-src * data:; style-src 'self' 'unsafe-inline'";
               add_header X-XSS-Protection "0";
 #add_header X-XSS-Protection "1; mode=block"; # can potentaily be unsafe, attacker can disable some parts of js
