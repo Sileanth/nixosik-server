@@ -29,7 +29,7 @@ in {
 $ORIGIN sileanth.pl.
 $TTL 3600
 @       IN      SOA      ns1.sileanth.pl. admin.sileanth.pl. (
-559 ; Serial
+590 ; Serial
 600            ; Refresh
 120           ; Retry
 3600            ; Expire
@@ -67,6 +67,19 @@ www.sileanth.pl.  CAA 0 issuewild "letsencrypt.org"
 
 @   IN  TXT   "v=spf1 a:sileanth.pl ip4:${main} ip6:${main6} -all"
 @ IN MX 10 mail.sileanth.pl.
+
+_443._tcp.sileanth.pl. IN TLSA 3 1 1 (
+                  36ec81abdfb8b058809b67b1b98e60c4921420eb820eac09bb263d29b164beac
+)
+_443._udp.sileanth.pl. IN TLSA 3 1 1 (
+                  36ec81abdfb8b058809b67b1b98e60c4921420eb820eac09bb263d29b164beac
+)
+_80._tcp.sileanth.pl. IN TLSA 3 1 1 (
+                  36ec81abdfb8b058809b67b1b98e60c4921420eb820eac09bb263d29b164beac
+)
+_80._udp.sileanth.pl. IN TLSA 3 1 1 (
+                  36ec81abdfb8b058809b67b1b98e60c4921420eb820eac09bb263d29b164beac
+)
 '';
   };
   networking.firewall.allowedTCPPorts = [ 53 ];
