@@ -13,6 +13,9 @@
        enable = true;
 
 
+        # experimental quic support
+        package = pkgs.nginxQuic;
+
 
         # Use recommended settings
         recommendedGzipSettings = true;
@@ -70,7 +73,6 @@
             ];
 
             # experimental http3, quic
-            package = pkgs.nginxQuic;
             quic = true;
             http3 = true;
 
