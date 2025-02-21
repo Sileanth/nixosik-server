@@ -49,7 +49,7 @@ networking.wg-quick.interfaces = {
   };
   services = {
     dnsmasq = {
-      enable = true;
+      enable = false;
       settings = {
 
         interface= "wg0";
