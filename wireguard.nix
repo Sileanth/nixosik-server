@@ -41,7 +41,7 @@ networking.wg-quick.interfaces = {
       peers = [
         { # peer0
           publicKey = "RRmnvOVDt/tKCdA4Lqvz39SEyJBtr9ekvVfYy2UYQyw=";
-          presharedKeyFile = "/root/wireguard-keys/preshared_from_peer0_key";
+          # presharedKeyFile = "/root/wireguard-keys/preshared_from_peer0_key";
           allowedIPs = [ "10.0.0.2/32" "fdc9:281f:04d7:9ee9::2/128" ];
         }
       ];
