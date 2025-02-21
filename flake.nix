@@ -18,6 +18,7 @@
            ./http-server.nix
            ./bind.nix
            ./im-tunnel.nix
+           ./wireguard.nix
          ];
        };
      };

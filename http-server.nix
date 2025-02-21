@@ -42,7 +42,6 @@
               add_header Permissions-Policy "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()";
 
 
-
             '';
 
        virtualHosts = let
@@ -53,7 +52,7 @@
           };
         message-website =  message : extra : extra // common // {
               locations."/" = {
-                  return = "200 '<html><body>${message}</body></html>'";
+                  return = "200 '${message}'";
                   extraConfig = ''
                     default_type text/html;
                   '';
@@ -61,11 +60,26 @@
           };
 
         in {
-          # "blog.sileanth.eu" = message-website "blog" {};
-          # "sklep.sileanth.eu" = message-website "sklep" {};
-          # "tetris.sileanth.eu" = message-website "tetris" {};
-          # "sileanth.eu" = message-website "main" {};
-          "sileanth.pl" = message-website "pl" {
+          "sileanth.pl" = message-website ''
+<!DOCTYPE html>
+<html>
+<head>
+<title>Prask</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to prask!</h1>
+<h2> Certificate</h2>
+<img src="//ipv6.he.net/certification/create_badge.php?pass_name=sileanth&amp;badge=1" style="border: 0; width: 128px; height: 128px" alt="IPv6 Certification Badge for sileanth"></img>
+<h2>Secret message:</h2>
+<p>YWxhIG1hIGtvdGEKp>
+</body>
+</html>
+          '' {
             serverAliases = [
               "www.sileanth.pl"
             ];

@@ -66,7 +66,6 @@
 networking.firewall.enable = true;
  networking.useNetworkd = true;
 
-#systemd.network.enable = true;
   systemd.network.networks."10-wan" = {
     matchConfig.Name = "enp1s0"; # either ens3 or enp1s0 depending on system, check 'ip addr'
     networkConfig.DHCP = "ipv4";
