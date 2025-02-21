@@ -47,6 +47,14 @@ networking.wg-quick.interfaces = {
       ];
     };
   };
+  services = {
+    dnsmasq = {
+      enable = true;
+      extraConfig = ''
+        interface=wg0
+      '';
+    };
+  };
 
 
 }
