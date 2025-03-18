@@ -48,8 +48,7 @@
        openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESV2HAKj2KFZ4Xi3UJV4DHug/QfXjIOhNykkGUA1sg3 lukasz.magnuszewski@gmail.com" # desktop-linux
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKw6l2Muwgrbog6Pz+LXLx/qTDshCRcWfgMGvRsnFUar" # mobile
-        "ssh-ed25520 AAAAC3NzaC1lZDI1NTE5AAAAIND2a1HY2c/aRRlwo2Kuenras7AiAmOZjKai1tmeLjhE lukas@liga" # desktop windows
-	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3a8lS=zbs7Lfddmqrr4gYEh0ilNtNJVsO9k3NpwrOH lukas2liga"
+     	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdfUTsub/EKUIWhhAmTzhfjhFsdNzt53cNxGtC4h1Sa lukas@liga" # windows
        ];
      };
    };
