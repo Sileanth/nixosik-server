@@ -13,6 +13,7 @@
      pkgs.git
      pkgs.zip
      pkgs.unzip
+     pkgs.wireguard-tools
      pkgs.wget
    ];
    
