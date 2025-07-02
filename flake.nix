@@ -1,9 +1,12 @@
  {
    inputs = {
      nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+     inputs.disko.url = "github:nix-community/disko/latest";
+     inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
+
    };
 
-   outputs = { nixpkgs, ... }: {
+   outputs = { nixpkgs, disko,... }: {
      nixosConfigurations = {
        main  = let
 	vars = {
@@ -14,6 +17,7 @@
          system = "x86_64-linux";
          specialArgs = { inherit vars; };
          modules = [
+           disko.nixosModules.disko
            ./configuration.nix
          ];
        };

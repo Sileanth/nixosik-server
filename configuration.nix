@@ -5,7 +5,6 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
 	./disk.nix
-	   "${builtins.fetchTarball "https://github.com/nix-community/disko/archive/master.tar.gz"}/module.nix"
     ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
