@@ -1,6 +1,9 @@
 default:
   just --list
 
+remote:
+  ssh main "cd nixosik-server; git pull; just switch"
+
 update:
 	nix flake update --commit-lock-file
 
