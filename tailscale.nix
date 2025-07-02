@@ -2,8 +2,9 @@
   
   
 
-  services.couchdb = {
+  services.tailscale = {
     enable = true;
+    openFirewall = true;
 
 
   };

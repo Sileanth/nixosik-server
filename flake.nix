@@ -20,6 +20,7 @@
            ./configuration.nix
            ./caddy.nix
            ./couchdb.nix
+           ./tailscale.nix
          ];
        };
      };
