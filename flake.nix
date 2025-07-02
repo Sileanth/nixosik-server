@@ -1,11 +1,11 @@
  {
    inputs = {
-     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
    };
 
    outputs = { nixpkgs, ... }: {
      nixosConfigurations = {
-       hetzner = let
+       main  = let
 	vars = {
 		ip4 = "135.181.87.151";
 		ip6 = "2a01:4f9:c012:f993::1";
