@@ -19,6 +19,7 @@
            disko.nixosModules.disko
            ./configuration.nix
            ./caddy.nix
+           ./couchdb.nix
          ];
        };
      };
