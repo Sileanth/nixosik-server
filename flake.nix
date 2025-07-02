@@ -10,8 +10,7 @@
      nixosConfigurations = {
        main  = let
 	vars = {
-		ip4 = "135.181.87.151";
-		ip6 = "2a01:4f9:c012:f993::1";
+		ip4 = "84.235.172.161";
 	};
        in nixpkgs.lib.nixosSystem {
          system = "x86_64-linux";
@@ -19,6 +18,7 @@
          modules = [
            disko.nixosModules.disko
            ./configuration.nix
+           ./caddy.nix
          ];
        };
      };
