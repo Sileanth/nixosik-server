@@ -21,6 +21,7 @@
            ./caddy.nix
            ./couchdb.nix
            ./tailscale.nix
+           ./docker.nix
          ];
        };
      };
