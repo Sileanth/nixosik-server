@@ -22,6 +22,7 @@
            ./couchdb.nix
            ./tailscale.nix
            ./docker.nix
+					 ./autoupgrade.nix
          ];
        };
      };
