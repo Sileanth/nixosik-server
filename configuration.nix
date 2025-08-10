@@ -22,6 +22,7 @@
    users.users.sileanth = {
 	openssh.authorizedKeys.keys = [
 		"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdfUTsub/EKUIWhhAmTzhfjhFsdNzt53cNxGtC4h1Sa lukas@liga"
+		"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOhmckjZU0namZrSdGnKd1sjh4VTawZSPUggqq1Twf04 your_email@example.com"
 	];
      isNormalUser = true;
      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
@@ -41,7 +42,7 @@
 
   # Enable the OpenSSH daemon.
   services.fail2ban = {
-    enable = true;
+    enable = false;
   };
   services.openssh = {
 	enable = true;
