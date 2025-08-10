@@ -42,7 +42,7 @@
 
   # Enable the OpenSSH daemon.
   services.fail2ban = {
-    enable = false;
+    enable = true;
   };
   services.openssh = {
 	enable = true;
