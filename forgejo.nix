@@ -27,7 +27,6 @@ in {
 in ''
   ${adminCmd} create --admin --email "root@localhost" --username ${user} --password "$(tr -d '\n' < ${path})" || true
   ## uncomment this line to change an admin user which was already created
-  # ${adminCmd} change-password --username ${user} --password "$(tr -d '\n' < ${pwd.path})" || true
 '';
 
 }
