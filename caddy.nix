@@ -6,6 +6,11 @@
     enable = true;
 
     virtualHosts = {
+			"vaultwarden.sileanth.pl" = {
+				extraConfig = ''
+					reverse_proxy http://localhost:3012
+				'';
+			};
       "couchdb.sileanth.pl" = {
         extraConfig = ''
           reverse_proxy http://localhost:5984
