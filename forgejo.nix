@@ -1,4 +1,4 @@
-{pkgs, ...}: let
+{pkgs, config, ...}: let
   cfg = config.services.forgejo;
 in {
 	services.forgejo = {
