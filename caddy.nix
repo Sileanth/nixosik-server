@@ -6,6 +6,11 @@
     enable = true;
 
     virtualHosts = {
+			"git.sileanth.pl" = {
+				extraConfig = ''
+					reverse_proxy http://localhost:3011
+				'';
+			};
 			"vaultwarden.sileanth.pl" = {
 				extraConfig = ''
 					reverse_proxy http://localhost:3012

@@ -3,7 +3,7 @@
   
 
   services.vaultwarden = {
-    enable = true;
+    enable = false;
 		dbBackend = "sqlite";
 		config = {
 			DOMAIN = "https://vaultwarden.sileanth.pl";

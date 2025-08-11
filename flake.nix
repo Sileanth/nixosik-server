@@ -20,6 +20,7 @@
            ./configuration.nix
            ./caddy.nix
            ./couchdb.nix
+           ./forgejo.nix
            ./tailscale.nix
            ./docker.nix
 					 ./autoupgrade.nix
