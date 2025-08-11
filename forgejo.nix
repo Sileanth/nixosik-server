@@ -21,7 +21,7 @@ in {
 	};
 
 	systemd.services.forgejo.preStart = let 
-  adminCmd = "${lib.getExe cfg.package} admin user";
+  adminCmd = "${pkgs.lib.getExe cfg.package} admin user";
   pwd = "/secrets/forgejo";
   user = "sileanth"; # Note, Forgejo doesn't allow creation of an account named "admin"
 in ''
