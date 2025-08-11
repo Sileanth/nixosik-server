@@ -22,10 +22,10 @@ in {
 
 	systemd.services.forgejo.preStart = let 
   adminCmd = "${pkgs.lib.getExe cfg.package} admin user";
-  pwd = "/secrets/forgejo";
+  path = "/secrets/forgejo";
   user = "sileanth"; # Note, Forgejo doesn't allow creation of an account named "admin"
 in ''
-  ${adminCmd} create --admin --email "root@localhost" --username ${user} --password "$(tr -d '\n' < ${pwd})" || true
+  ${adminCmd} create --admin --email "root@localhost" --username ${user} --password "$(tr -d '\n' < ${path})" || true
   ## uncomment this line to change an admin user which was already created
   # ${adminCmd} change-password --username ${user} --password "$(tr -d '\n' < ${pwd.path})" || true
 '';
