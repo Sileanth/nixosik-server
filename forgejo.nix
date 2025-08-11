@@ -6,10 +6,6 @@
 		database = {
 			type = "sqlite3";
 		};
-		actions = {
-        ENABLED = true;
-        DEFAULT_ACTIONS_URL = "github";
-		};
 		settings = {
 			server = {
 				DOMAIN = "git.sileanth.pl";
