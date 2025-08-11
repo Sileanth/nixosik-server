@@ -1,6 +1,5 @@
 {pkgs, ...}: {
 	services.forgejo = {
-		useWizard = true;
 		enable = true;
 		lfs.enable = true;
 		database = {
