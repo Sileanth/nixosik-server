@@ -8,7 +8,7 @@ update:
 	nix flake update --commit-lock-file
 
 switch:
-  sudo nixos-rebuild switch --flake .#
+  sudo nixos-rebuild switch --flake .# --impure
 
 build-boot:
 	sudo nixos-rebuild switch --flake .# --install-bootloader

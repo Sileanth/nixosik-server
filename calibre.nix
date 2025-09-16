@@ -8,14 +8,14 @@ in {
     # wget http://www.gutenberg.org/ebooks/1342.kindle.noimages -O pride.mobi
     # sudo calibredb add pride.mobi  --library-path /persist/calibre-server/library
     libraries = [
-      /persist/calibre-server/library
+      "/persist/calibre-server/library"
 
     ];
     auth = {
       enable = true;
       # before enabling service create userdb
       # calibre-server --userdb /persist/calibre-server/users.sqlite --manage-user
-      userDb = /persist/calibre-server/users.sqlite;
+      userDb = "/persist/calibre-server/users.sqlite";
 
 
     };
