@@ -8,7 +8,7 @@ in {
     # wget http://www.gutenberg.org/ebooks/1342.kindle.noimages -O pride.mobi
     # sudo calibredb add pride.mobi  --library-path /persist/calibre-server/library
     libraries = [
-      /persist/calibre-server/
+      /persist/calibre-server/library
 
     ];
     auth = {
