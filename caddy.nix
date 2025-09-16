@@ -16,6 +16,11 @@
 					reverse_proxy http://localhost:3012
 				'';
 			};
+			"calibre.sileanth.pl" = {
+				extraConfig = ''
+					reverse_proxy http://localhost:3013
+				'';
+			};
       "couchdb.sileanth.pl" = {
         extraConfig = ''
           reverse_proxy http://localhost:5984

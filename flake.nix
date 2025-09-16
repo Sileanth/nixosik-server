@@ -24,7 +24,7 @@
            ./tailscale.nix
            ./docker.nix
 					 ./autoupgrade.nix
-					 ./vaultwarden.nix
+           ./calibre.nix
          ];
        };
      };
