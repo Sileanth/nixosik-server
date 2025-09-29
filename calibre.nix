@@ -6,7 +6,7 @@ in {
     port = 3013;
     # u need to create lbirary before starting service
     # wget http://www.gutenberg.org/ebooks/1342.kindle.noimages -O pride.mobi
-    # sudo calibredb add pride.mobi  --library-path /persist/calibre-server/library
+    # calibredb add pride.mobi  --library-path /persist/calibre-server/library
     libraries = [
       "/persist/calibre-server/library"
 
