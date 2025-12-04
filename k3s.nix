@@ -12,7 +12,7 @@
     enable = true;
     role = "server";
     clusterInit = true;
-    # tokenFile = "/secrets/k3s";
+    tokenFile = "/secrets/k3s";
   };
  
 
