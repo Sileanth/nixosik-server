@@ -24,6 +24,7 @@
            ./tailscale.nix
            ./docker.nix
 					 ./autoupgrade.nix
+             ./k3s.nix
            ./calibre.nix
          ];
        };
