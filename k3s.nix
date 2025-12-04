@@ -13,6 +13,9 @@
     role = "server";
     clusterInit = true;
     tokenFile = "/secrets/k3s";
+    extraFlags = [ 
+      "--tls-san 84.235.172.161" 
+    ];
   };
  
 
