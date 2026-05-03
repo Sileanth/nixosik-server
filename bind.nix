@@ -14,17 +14,12 @@ let
 in {
   services.bind = {
     enable = true;
-    ipv4Only = true;
     
-    extraOptions = ''
-      allow-query { any; };
-    '';
 
     zones = lib.mkIf (isMaster || isSlave) {
       "${domain}" = if isMaster then {
         master = true;
-        allowTransfer = [ kotekIp piesekIp ];
-        extraConfig = "notify yes;";
+        slaves = [ kotekIp piesekIp ];
         file = pkgs.writeText "${domain}.zone" ''
           ; ULTRA-FAST TEST SETUP
           $TTL 30      ; Default TTL (30 seconds)
