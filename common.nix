@@ -2,9 +2,8 @@
 
 {
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.trusted-users = [ "root" "sileanth" ];
   
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
 
 
   services.resolved.enable = true;
