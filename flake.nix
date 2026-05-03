@@ -20,7 +20,7 @@
         ./common.nix
         ./networking.nix
         ./bind.nix
-        ./nginx.nix
+        ./caddy.nix
       ];
     };
   in {
