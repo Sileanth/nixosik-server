@@ -19,6 +19,7 @@
         ./hardware/${name}-hardware.nix
         ./common.nix
         ./networking.nix
+        ./bind.nix
       ];
     };
   in {
@@ -31,6 +32,7 @@
           gemini-cli
           codex
           rsync
+          dig
           openssh
         ];
         
