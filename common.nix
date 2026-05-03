@@ -22,6 +22,10 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdfUTsub/EKUIWhhAmTzhfjhFsdNzt53cNxGtC4h1Sa lukas@liga"
     ];
   };
+  environment.systemPackages = with pkgs; [
+    python
+
+  ];
 
   security.sudo.wheelNeedsPassword = false;
   services.openssh = {

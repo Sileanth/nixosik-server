@@ -1,0 +1,17 @@
+---
+- name: Update NixOS on all hosts
+  hosts: all
+  remote_user: sileanth
+  tasks:
+    - name: Pull latest changes from git
+      ansible.builtin.git:
+        repo: https://github.com/sileanth/nixosik-server.git
+        dest: ~/nixosik-server
+        version: main
+        update: yes
+
+    - name: Rebuild NixOS system
+      become: yes
+      ansible.builtin.command:
+        cmd: nixos-rebuild switch --flake .#
+        chdir: ~/nixosik-server
