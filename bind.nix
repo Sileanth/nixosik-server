@@ -46,12 +46,6 @@ in {
           @       IN      A       ${mainIp}
           *       IN      A       ${mainIp}
 
-          ; RECOMMENDED PROD SETTINGS:
-          ; $TTL 86400 (1 day)
-          ; Refresh: 7200 (2 hours)
-          ; Retry: 3600 (1 hour)
-          ; Expire: 1209600 (2 weeks)
-          ; Negative Cache (Minimum): 3600 (1 hour)
         '';
       } else {
         master = false;
