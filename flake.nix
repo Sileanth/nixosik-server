@@ -1,33 +1,15 @@
- {
-   inputs = {
-     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-     disko.url = "github:nix-community/disko/latest";
-     disko.inputs.nixpkgs.follows = "nixpkgs";
+{
+  description = "A very basic flake";
 
-   };
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+  };
 
-   outputs = { nixpkgs, disko,... }: {
-     nixosConfigurations = {
-       main  = let
-	vars = {
-		ip4 = "84.235.172.161";
-	};
-       in nixpkgs.lib.nixosSystem {
-         system = "x86_64-linux";
-         specialArgs = { inherit vars; };
-         modules = [
-           disko.nixosModules.disko
-           ./configuration.nix
-           ./caddy.nix
-           ./couchdb.nix
-           ./forgejo.nix
-           ./tailscale.nix
-           ./docker.nix
-					 ./autoupgrade.nix
-             ./k3s.nix
-           ./calibre.nix
-         ];
-       };
-     };
-   };
- }
+  outputs = { self, nixpkgs }: {
+
+    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+
+    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+
+  };
+}
