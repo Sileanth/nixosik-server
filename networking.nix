@@ -1,4 +1,4 @@
-{ config, lib, pkgs, hostInfo, ... }:
+{ config, lib, pkgs, hostInfo, name, ... }:
 
 {
   networking.useDHCP = false;
