@@ -56,6 +56,7 @@ in {
       } else {
         master = false;
         masters = [ mainIp ];
+        file = "/var/lib/bind/${domain}.zone";
       };
     };
   };
