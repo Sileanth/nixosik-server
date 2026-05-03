@@ -20,6 +20,7 @@
         ./common.nix
         ./networking.nix
         ./bind.nix
+        ./nginx.nix
       ];
     };
   in {
