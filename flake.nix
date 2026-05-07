@@ -14,7 +14,7 @@
     
     mkHost = name: hostInfo: nixpkgs.lib.nixosSystem {
       system = hostInfo.arch;
-      specialArgs = { inherit hostInfo name; };
+      specialArgs = { inherit hostInfo name hosts; };
       modules = [
         ./hardware/${name}-hardware.nix
         ./common.nix
@@ -23,8 +23,9 @@
         ./caddy.nix
       ];
     };
+    hostsToBuild = nixpkgs.lib.filterAttrs (n: v: !(v.isClient or false)) hosts;
   in {
-    nixosConfigurations = nixpkgs.lib.mapAttrs mkHost hosts;
+    nixosConfigurations = nixpkgs.lib.mapAttrs mkHost hostsToBuild;
 
     devShells = forAllSystems (system: {
       default = nixpkgs.legacyPackages.${system}.mkShell {

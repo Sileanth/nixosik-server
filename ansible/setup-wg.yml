@@ -1,0 +1,37 @@
+---
+- name: Setup WireGuard Secrets on Servers
+  hosts: all
+  become: true
+  tasks:
+    - name: Create WireGuard directory
+      file:
+        path: /etc/wireguard
+        state: directory
+        mode: '0700'
+        owner: root
+        group: root
+
+    - name: Check if private key exists
+      stat:
+        path: /etc/wireguard/private.key
+      register: wg_key
+
+    - name: Generate WireGuard private key if missing
+      shell: wg genkey > /etc/wireguard/private.key
+      when: not wg_key.stat.exists
+
+    - name: Set permissions for private key
+      file:
+        path: /etc/wireguard/private.key
+        mode: '0600'
+        owner: root
+        group: root
+
+    - name: Get public key for reference
+      shell: cat /etc/wireguard/private.key | wg pubkey
+      register: pubkey
+      changed_when: false
+
+    - name: Display Public Key
+      debug:
+        msg: "{{ inventory_hostname }} Public Key is {{ pubkey.stdout }}"
