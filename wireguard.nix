@@ -37,7 +37,19 @@ in
   systemd.network.networks."50-wg0" = {
     matchConfig.Name = "wg0";
     address = [ "${hostInfo.vpnIp}/24" ];
-    networkConfig.IPForward = "yes";
+    networkConfig = lib.mkIf isHub {
+        IPv4Forwarding = true;
+        IPv6Forwarding = true;
+    };
+
+  };
+
+  networking.nat = lib.mkIf isHub {
+enable = true;
+    enableIPv6 = true;
+    externalInterface = "ens6";
+    internalInterfaces = [ "wg0" ];
+
   };
 
   networking.firewall.allowedUDPPorts = [ 51820 ];
