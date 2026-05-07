@@ -1,6 +1,6 @@
 ---
 - name: Update NixOS on all hosts
-  hosts: all
+  hosts: main
   strategy: free
   remote_user: sileanth
   tasks:
