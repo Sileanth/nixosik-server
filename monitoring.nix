@@ -99,6 +99,7 @@ in
       http_addr = "10.200.0.1";
       http_port = 3000;
     };
+    settings.security.secret_key = null;
     provision = {
       enable = true;
       datasources.settings.datasources = [
