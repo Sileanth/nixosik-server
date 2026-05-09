@@ -37,9 +37,8 @@ in
     };
     wireguardConfig = {
       PrivateKeyFile = "/etc/wireguard/private.key";
-      RouteTable = "main";
-    } // lib.optionalAttrs isHub {
       ListenPort = 51820;
+      RouteTable = "main";
     };
     # Hub connects to everyone; Nodes only connect to Hub
     wireguardPeers = if isHub
@@ -65,5 +64,5 @@ in
     internalInterfaces = [ "wg0" ];
   };
 
-  networking.firewall.allowedUDPPorts = lib.mkIf isHub [ 51820 ];
+  networking.firewall.allowedUDPPorts = [ 51820 ];
 }
