@@ -10,10 +10,6 @@
       helios: 10.200.0.2
       kotek: 10.200.0.3
       piesek: 10.200.0.4
-    private_ips:
-      main: 10.0.0.117
-      kotek: 10.0.0.113
-      piesek: 10.0.0.36
     vpn_peers_by_host:
       main:
         - helios
@@ -71,9 +67,3 @@
         cmd: ping -c "{{ ping_count }}" "{{ vpn_ips[item] }}"
       changed_when: false
       loop: "{{ vpn_peers_by_host[inventory_hostname] }}"
-
-    - name: Ping expected private peers
-      ansible.builtin.command:
-        cmd: ping -c "{{ ping_count }}" "{{ private_ips[item] }}"
-      changed_when: false
-      loop: "{{ vpn_peers_by_host[inventory_hostname] | intersect(private_ips.keys() | list) }}"

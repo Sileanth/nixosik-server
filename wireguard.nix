@@ -9,7 +9,11 @@ let
   # Helper to create a peer config
   mkPeer = peerName: peerInfo: {
     PublicKey = peerInfo.wgPubKey;
-    AllowedIPs = [ "${peerInfo.vpnIp}/32" ];
+    AllowedIPs =
+      if !isHub && peerName == "main" then
+        [ "10.200.0.0/24" ]
+      else
+        [ "${peerInfo.vpnIp}/32" ];
   } // lib.optionalAttrs (!isHub && peerName == "main") {
     # If this is not the hub, and the peer is the hub, add endpoint and keepalive
     Endpoint = "${peerInfo.public}:51820";
