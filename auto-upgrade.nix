@@ -26,7 +26,6 @@ let
         --use-substitutes \
         --sudo \
         --print-build-logs
-        --option sandbox false
     '';
   };
 
