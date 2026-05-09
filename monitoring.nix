@@ -67,20 +67,18 @@ let
 
 in
 {
-  # Node Exporter on all nodes
-  services.prometheus.exporters.node = {
-    enable = true;
-    enabledCollectors = [ "systemd" ];
-    port = 9100;
-  };
+  # Prometheus configuration
+  services.prometheus = {
+    # Node Exporter on all nodes
+    exporters.node = {
+      enable = true;
+      enabledCollectors = [ "systemd" ];
+      port = 9100;
+    };
 
-  # Open port 9100 on the VPN interface only
-  networking.firewall.interfaces."wg0".allowedTCPPorts = [ 9100 ];
-
-  # Prometheus and Grafana on main node
-  services.prometheus = lib.mkIf isMain {
-    enable = true;
-    scrapeConfigs = [
+    # Server settings only on main node
+    enable = lib.mkIf isMain true;
+    scrapeConfigs = lib.mkIf isMain [
       {
         job_name = "nodes";
         static_configs = [
@@ -92,13 +90,17 @@ in
     ];
   };
 
+  # Open ports on the VPN interface only
+  networking.firewall.interfaces."wg0".allowedTCPPorts = [ 9100 ] ++ lib.optionals isMain [ 3000 ];
+
   services.grafana = lib.mkIf isMain {
     enable = true;
     settings.server = {
       http_addr = "10.200.0.1";
       http_port = 3000;
     };
-    provisioning = {
+    provision = {
+      enable = true;
       datasources.settings.datasources = [
         {
           name = "Prometheus";
@@ -111,17 +113,14 @@ in
       dashboards.settings.providers = [
         {
           name = "Default";
-          options.path = "/etc/grafana/dashboards";
+          options.path = "/etc/grafana-dashboards";
         }
       ];
     };
   };
 
-  # Open Grafana port on VPN
-  networking.firewall.interfaces."wg0".allowedTCPPorts = lib.mkIf isMain [ 3000 ];
-
   # Provision dashboard file
-  environment.etc."grafana/dashboards/nodes.json" = lib.mkIf isMain {
+  environment.etc."grafana-dashboards/nodes.json" = lib.mkIf isMain {
     text = builtins.toJSON dashboard;
   };
 }
