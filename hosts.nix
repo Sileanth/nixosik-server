@@ -33,4 +33,9 @@
     wgPubKey = "zceMtaSB8qIMJaWgiSI9GPn1HgiXlzouL2Gf0A6pWGE=";
     isClient = true;
   };
+  phone = {
+    vpnIp = "10.200.0.5";
+    wgPubKey = "vIbp/bun69fB3VfVmlX1f5Znf8jrMrFDeLi/0VTWChc=";
+    isClient = true;
+  };
 }
