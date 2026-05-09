@@ -8,7 +8,72 @@ let
   serverHosts = lib.filterAttrs (_: h: !(h.isClient or false)) hosts;
   scrapeTargets = lib.mapAttrsToList (n: h: "${h.vpnIp}:9100") serverHosts;
 
-  # Basic Dashboard JSON for CPU and RAM
+  # Helper to create stat panels for a node
+  mkNodeStats = nodeName: nodeInfo: yPos: let
+    instance = "${nodeInfo.vpnIp}:9100";
+  in [
+    {
+      title = "${nodeName} CPU (5m)";
+      type = "stat";
+      gridPos = { h = 4; w = 8; x = 0; y = yPos; };
+      datasource = { type = "prometheus"; uid = "prometheus"; };
+      targets = [{
+        expr = "100 - (avg(rate(node_cpu_seconds_total{mode='idle', instance='${instance}'}[5m])) * 100)";
+      }];
+      fieldConfig.defaults = { 
+        unit = "percent"; 
+        min = 0; 
+        max = 100;
+        color = { mode = "thresholds"; };
+        thresholds = {
+          mode = "absolute";
+          steps = [
+            { color = "green"; value = null; }
+            { color = "orange"; value = 70; }
+            { color = "red"; value = 90; }
+          ];
+        };
+      };
+    }
+    {
+      title = "${nodeName} RAM (5m)";
+      type = "stat";
+      gridPos = { h = 4; w = 8; x = 8; y = yPos; };
+      datasource = { type = "prometheus"; uid = "prometheus"; };
+      targets = [{
+        expr = "avg_over_time((100 - (node_memory_MemAvailable_bytes{instance='${instance}'} / node_memory_MemTotal_bytes{instance='${instance}'} * 100))[5m:1m])";
+      }];
+      fieldConfig.defaults = { 
+        unit = "percent"; 
+        min = 0; 
+        max = 100;
+        color = { mode = "thresholds"; };
+        thresholds = {
+          mode = "absolute";
+          steps = [
+            { color = "green"; value = null; }
+            { color = "orange"; value = 80; }
+            { color = "red"; value = 95; }
+          ];
+        };
+      };
+    }
+    {
+      title = "${nodeName} Net (5m)";
+      type = "stat";
+      gridPos = { h = 4; w = 8; x = 16; y = yPos; };
+      datasource = { type = "prometheus"; uid = "prometheus"; };
+      targets = [{
+        expr = "sum(rate(node_network_receive_bytes_total{instance='${instance}', device!='lo'}[5m]) + rate(node_network_transmit_bytes_total{instance='${instance}', device!='lo'}[5m]))";
+      }];
+      fieldConfig.defaults = { 
+        unit = "Bps";
+        color = { mode = "continuous-GrYlRd"; };
+      };
+    }
+  ];
+
+  # Basic Dashboard JSON
   dashboard = {
     annotations.list = [ ];
     editable = true;
@@ -16,42 +81,46 @@ let
     graphTooltip = 0;
     links = [ ];
     liveNow = false;
-    panels = [
-      {
-        title = "CPU Usage";
-        type = "timeseries";
-        gridPos = { h = 8; w = 12; x = 0; y = 0; };
-        datasource = { type = "prometheus"; uid = "prometheus"; };
-        targets = [
-          {
-            expr = "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)";
-            legendFormat = "{{instance}}";
-          }
-        ];
-        fieldConfig.defaults = {
-          unit = "percent";
-          min = 0;
-          max = 100;
-        };
-      }
-      {
-        title = "Memory Usage";
-        type = "timeseries";
-        gridPos = { h = 8; w = 12; x = 12; y = 0; };
-        datasource = { type = "prometheus"; uid = "prometheus"; };
-        targets = [
-          {
-            expr = "100 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100)";
-            legendFormat = "{{instance}}";
-          }
-        ];
-        fieldConfig.defaults = {
-          unit = "percent";
-          min = 0;
-          max = 100;
-        };
-      }
-    ];
+    panels = 
+      (mkNodeStats "main" hosts.main 0) ++
+      (mkNodeStats "kotek" hosts.kotek 4) ++
+      (mkNodeStats "piesek" hosts.piesek 8) ++
+      [
+        {
+          title = "CPU Usage (Detailed)";
+          type = "timeseries";
+          gridPos = { h = 8; w = 12; x = 0; y = 12; };
+          datasource = { type = "prometheus"; uid = "prometheus"; };
+          targets = [
+            {
+              expr = "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)";
+              legendFormat = "{{instance}}";
+            }
+          ];
+          fieldConfig.defaults = {
+            unit = "percent";
+            min = 0;
+            max = 100;
+          };
+        }
+        {
+          title = "Memory Usage (Detailed)";
+          type = "timeseries";
+          gridPos = { h = 8; w = 12; x = 12; y = 12; };
+          datasource = { type = "prometheus"; uid = "prometheus"; };
+          targets = [
+            {
+              expr = "100 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100)";
+              legendFormat = "{{instance}}";
+            }
+          ];
+          fieldConfig.defaults = {
+            unit = "percent";
+            min = 0;
+            max = 100;
+          };
+        }
+      ];
     schemaVersion = 36;
     style = "dark";
     tags = [ ];
@@ -91,7 +160,7 @@ in
   };
 
   # Open ports on the VPN interface only
-  networking.firewall.interfaces."wg0".allowedTCPPorts = [ 9100 ] ++ lib.optionals isMain [ 3000 9090 ];
+  networking.firewall.interfaces."wg0".allowedTCPPorts = [ 9100 ] ++ lib.optionals isMain [ 3000 ];
 
   services.grafana = lib.mkIf isMain {
     enable = true;
@@ -99,7 +168,6 @@ in
       http_addr = "10.200.0.1";
       http_port = 3000;
     };
-    settings.security.secret_key = "$__file{/secrets/grafana_secret_key}";
     provision = {
       enable = true;
       datasources.settings.datasources = [
