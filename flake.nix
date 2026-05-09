@@ -22,6 +22,7 @@
         ./bind.nix
         ./caddy.nix
         ./wireguard.nix
+        ./auto-upgrade.nix
       ];
     };
     hostsToBuild = nixpkgs.lib.filterAttrs (n: v: !(v.isClient or false)) hosts;

@@ -7,6 +7,7 @@
     interface = "ens3";
     arch = "x86_64-linux";
     sshKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOkdcD9BVdA6VIWywEZLDyK7Xgv/NpYYFympd/qND2FT";
+    builderPubKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICq1f7DgB/WmI1ja1c2r0vHdY+vkfw3F1E+vHK+Taq06 nix-builder@kotek";
   };
   piesek = {
     public = "134.98.136.184";
@@ -16,6 +17,7 @@
     interface = "ens3";
     arch = "x86_64-linux";
     sshKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM+N8Ad4KDgbSR7xrF4Tfm/eRMghRQuqXbRc7HIK3+dr";
+    builderPubKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIICpxLkK1I6jDZxv2WYcdlN24xlXKRFBKXj80T4tmIZn nix-builder@piesek";
   };
   main = {
     public = "84.235.172.161";
