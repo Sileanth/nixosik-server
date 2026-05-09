@@ -96,6 +96,38 @@ let
     }
   ];
 
+  # Helper to create upgrade status panels
+  mkUpgradeStats = yPos: let
+    instance = "${hosts.main.vpnIp}:9100";
+    mkServicePanel = title: serviceName: xPos: {
+      title = title;
+      type = "stat";
+      gridPos = { h = 4; w = 8; x = xPos; y = yPos; };
+      datasource = { type = "prometheus"; uid = "prometheus"; };
+      targets = [
+        {
+          expr = "node_systemd_unit_state{instance='${instance}', name='${serviceName}', state='failed'}";
+          legendFormat = "Status";
+        }
+      ];
+      fieldConfig.defaults = {
+        mappings = [
+          {
+            type = "value";
+            options = {
+              "0" = { color = "green"; text = "SUCCESS"; };
+              "1" = { color = "red"; text = "FAILED"; };
+            };
+          }
+        ];
+      };
+    };
+  in [
+    (mkServicePanel "Main Upgrade" "nixos-upgrade.service" 0)
+    (mkServicePanel "Deploy Kotek" "deploy-kotek.service" 8)
+    (mkServicePanel "Deploy Piesek" "deploy-piesek.service" 16)
+  ];
+
   # Basic Dashboard JSON
   dashboard = {
     annotations.list = [ ];
@@ -108,11 +140,12 @@ let
       (mkNodeStats "main" hosts.main 0) ++
       (mkNodeStats "kotek" hosts.kotek 4) ++
       (mkNodeStats "piesek" hosts.piesek 8) ++
+      (mkUpgradeStats 12) ++
       [
         {
           title = "CPU Usage (Detailed)";
           type = "timeseries";
-          gridPos = { h = 8; w = 12; x = 0; y = 12; };
+          gridPos = { h = 8; w = 12; x = 0; y = 16; };
           datasource = { type = "prometheus"; uid = "prometheus"; };
           targets = [
             {
@@ -129,7 +162,7 @@ let
         {
           title = "Memory Usage (Detailed)";
           type = "timeseries";
-          gridPos = { h = 8; w = 12; x = 12; y = 12; };
+          gridPos = { h = 8; w = 12; x = 12; y = 16; };
           datasource = { type = "prometheus"; uid = "prometheus"; };
           targets = [
             {
