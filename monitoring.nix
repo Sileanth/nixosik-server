@@ -91,7 +91,7 @@ in
   };
 
   # Open ports on the VPN interface only
-  networking.firewall.interfaces."wg0".allowedTCPPorts = [ 9100 ] ++ lib.optionals isMain [ 3000 ];
+  networking.firewall.interfaces."wg0".allowedTCPPorts = [ 9100 ] ++ lib.optionals isMain [ 3000 9090 ];
 
   services.grafana = lib.mkIf isMain {
     enable = true;
