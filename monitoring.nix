@@ -15,7 +15,7 @@ let
     {
       title = "${nodeName} CPU (5m)";
       type = "stat";
-      gridPos = { h = 4; w = 8; x = 0; y = yPos; };
+      gridPos = { h = 4; w = 6; x = 0; y = yPos; };
       datasource = { type = "prometheus"; uid = "prometheus"; };
       targets = [{
         expr = "100 - (avg(rate(node_cpu_seconds_total{mode='idle', instance='${instance}'}[5m])) * 100)";
@@ -38,7 +38,7 @@ let
     {
       title = "${nodeName} RAM (5m)";
       type = "stat";
-      gridPos = { h = 4; w = 8; x = 8; y = yPos; };
+      gridPos = { h = 4; w = 6; x = 6; y = yPos; };
       datasource = { type = "prometheus"; uid = "prometheus"; };
       targets = [{
         expr = "avg_over_time((100 - (node_memory_MemAvailable_bytes{instance='${instance}'} / node_memory_MemTotal_bytes{instance='${instance}'} * 100))[5m:1m])";
@@ -59,9 +59,32 @@ let
       };
     }
     {
+      title = "${nodeName} Disk (/)";
+      type = "stat";
+      gridPos = { h = 4; w = 6; x = 12; y = yPos; };
+      datasource = { type = "prometheus"; uid = "prometheus"; };
+      targets = [{
+        expr = "100 - (node_filesystem_avail_bytes{instance='${instance}', mountpoint='/'} / node_filesystem_size_bytes{instance='${instance}', mountpoint='/'} * 100)";
+      }];
+      fieldConfig.defaults = { 
+        unit = "percent"; 
+        min = 0; 
+        max = 100;
+        color = { mode = "thresholds"; };
+        thresholds = {
+          mode = "absolute";
+          steps = [
+            { color = "green"; value = null; }
+            { color = "orange"; value = 80; }
+            { color = "red"; value = 90; }
+          ];
+        };
+      };
+    }
+    {
       title = "${nodeName} Net (5m)";
       type = "stat";
-      gridPos = { h = 4; w = 8; x = 16; y = yPos; };
+      gridPos = { h = 4; w = 6; x = 18; y = yPos; };
       datasource = { type = "prometheus"; uid = "prometheus"; };
       targets = [{
         expr = "sum(rate(node_network_receive_bytes_total{instance='${instance}', device!='lo'}[5m]) + rate(node_network_transmit_bytes_total{instance='${instance}', device!='lo'}[5m]))";
