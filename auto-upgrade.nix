@@ -24,6 +24,7 @@ let
         --flake ${flake}#${targetName} \
         --target-host sileanth@${targetHost.vpnIp} \
         --use-substitutes \
+        --no-sandbox \
         --sudo \
         --print-build-logs
     '';
