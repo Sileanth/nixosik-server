@@ -1,45 +1,64 @@
-{ lib, name, hostInfo, ... }:
+{ config, lib, pkgs, name, hosts, ... }:
 
 let
   isMain = name == "main";
-  isX86Node = hostInfo.arch == "x86_64-linux";
-  mainVpnIp = "10.200.0.1";
+  deployKey = "/root/.ssh/nixos-deploy_ed25519";
+  flake = "github:sileanth/nixosik-server";
+
+  mkDeployService = targetName: targetHost: {
+    description = "Deploy ${targetName} NixOS configuration";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    path = [
+      config.nix.package
+      config.programs.ssh.package
+      pkgs.gitMinimal
+    ];
+    environment.NIX_SSHOPTS = "-i ${deployKey} -o StrictHostKeyChecking=yes";
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+    script = ''
+      ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch \
+        --flake ${flake}#${targetName} \
+        --target-host sileanth@${targetHost.vpnIp} \
+        --use-substitutes \
+        --sudo \
+        --print-build-logs
+    '';
+  };
+
+  mkDeployTimer = serviceName: calendar: {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = calendar;
+      Persistent = true;
+      RandomizedDelaySec = "10min";
+      Unit = "${serviceName}.service";
+    };
+  };
 in
 {
   boot.binfmt.emulatedSystems = lib.mkIf isMain [ "x86_64-linux" ];
 
-  nix.distributedBuilds = lib.mkIf isX86Node true;
-  nix.buildMachines = lib.mkIf isX86Node [
-    {
-      hostName = mainVpnIp;
-      protocol = "ssh-ng";
-      system = "x86_64-linux";
-      sshUser = "sileanth";
-      sshKey = "/root/.ssh/nix-builder_ed25519";
-      maxJobs = 1;
-      speedFactor = 1;
-    }
-  ];
-  nix.settings = lib.mkIf isX86Node {
-    builders-use-substitutes = true;
-    max-jobs = 0;
-  };
-
-  system.autoUpgrade = {
+  system.autoUpgrade = lib.mkIf isMain {
     enable = true;
-    flake = "github:sileanth/nixosik-server#${name}";
+    flake = "${flake}#main";
     flags = [ "--print-build-logs" ];
-    dates =
-      if isMain then
-        "04:00"
-      else if name == "kotek" then
-        "04:30"
-      else if name == "piesek" then
-        "05:00"
-      else
-        "05:30";
+    dates = "04:00";
     randomizedDelaySec = "10min";
     allowReboot = false;
     runGarbageCollection = true;
+  };
+
+  systemd.services = lib.mkIf isMain {
+    deploy-kotek = mkDeployService "kotek" hosts.kotek;
+    deploy-piesek = mkDeployService "piesek" hosts.piesek;
+  };
+
+  systemd.timers = lib.mkIf isMain {
+    deploy-kotek = mkDeployTimer "deploy-kotek" "*-*-* 04:30:00";
+    deploy-piesek = mkDeployTimer "deploy-piesek" "*-*-* 05:00:00";
   };
 }

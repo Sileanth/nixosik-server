@@ -2,12 +2,9 @@
 
 let
   knownSshHosts = lib.filterAttrs (_: host: host ? sshKey) hosts;
-  builderPublicKeys =
-    lib.optionals (name == "main") (
-      lib.mapAttrsToList (_: host: host.builderPubKey) (
-        lib.filterAttrs (_: host: host ? builderPubKey) hosts
-      )
-    );
+  deployPublicKeys = lib.optionals (name != "main" && hosts.main ? deployPubKey) [
+    hosts.main.deployPubKey
+  ];
 in
 {
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -28,7 +25,7 @@ in
     ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdfUTsub/EKUIWhhAmTzhfjhFsdNzt53cNxGtC4h1Sa lukas@liga"
-    ] ++ builderPublicKeys;
+    ] ++ deployPublicKeys;
   };
   environment.systemPackages = with pkgs; [
     python3

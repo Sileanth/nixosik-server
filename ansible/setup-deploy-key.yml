@@ -1,0 +1,35 @@
+---
+- name: Create root SSH key for central NixOS deploys
+  hosts: main
+  gather_facts: false
+  become: true
+  vars:
+    deploy_key_path: /root/.ssh/nixos-deploy_ed25519
+  tasks:
+    - name: Ensure root SSH directory exists
+      ansible.builtin.file:
+        path: /root/.ssh
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Check whether deploy key already exists
+      ansible.builtin.stat:
+        path: "{{ deploy_key_path }}"
+      register: deploy_key
+
+    - name: Generate deploy key
+      ansible.builtin.command:
+        cmd: ssh-keygen -t ed25519 -N "" -C "nixos-deploy@main" -f "{{ deploy_key_path }}"
+      when: not deploy_key.stat.exists
+      changed_when: true
+
+    - name: Read deploy public key
+      ansible.builtin.slurp:
+        src: "{{ deploy_key_path }}.pub"
+      register: deploy_public_key
+
+    - name: Show hosts.nix entry
+      ansible.builtin.debug:
+        msg: 'Add to hosts.nix under main: deployPubKey = "{{ deploy_public_key.content | b64decode | trim }}";'
