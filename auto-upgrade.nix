@@ -53,6 +53,8 @@ in
     runGarbageCollection = true;
   };
 
+  nix.settings.sandbox = false;
+
   systemd.services = lib.mkIf isMain {
     deploy-kotek = mkDeployService "kotek" hosts.kotek;
     deploy-piesek = mkDeployService "piesek" hosts.piesek;
