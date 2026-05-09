@@ -1,0 +1,79 @@
+---
+- name: Test WireGuard connectivity on NixOS servers
+  hosts: nixos
+  gather_facts: false
+  vars:
+    wg_interface: wg0
+    ping_count: 3
+    vpn_ips:
+      main: 10.200.0.1
+      helios: 10.200.0.2
+      kotek: 10.200.0.3
+      piesek: 10.200.0.4
+    private_ips:
+      main: 10.0.0.117
+      kotek: 10.0.0.113
+      piesek: 10.0.0.36
+    vpn_peers_by_host:
+      main:
+        - helios
+        - kotek
+        - piesek
+      kotek:
+        - main
+      piesek:
+        - main
+  tasks:
+    - name: Check networkd status for wg0
+      become: true
+      ansible.builtin.command:
+        cmd: networkctl status "{{ wg_interface }}"
+      changed_when: false
+
+    - name: Check WireGuard status
+      become: true
+      ansible.builtin.command:
+        cmd: wg show "{{ wg_interface }}"
+      changed_when: false
+      register: wg_show
+
+    - name: Show WireGuard status
+      ansible.builtin.debug:
+        var: wg_show.stdout_lines
+
+    - name: Check expected VPN address
+      ansible.builtin.command:
+        cmd: ip addr show dev "{{ wg_interface }}"
+      changed_when: false
+      register: wg_addr
+
+    - name: Assert expected VPN address is configured
+      ansible.builtin.assert:
+        that:
+          - "'inet ' ~ vpn_ips[inventory_hostname] ~ '/24' in wg_addr.stdout"
+        fail_msg: "{{ inventory_hostname }} does not have {{ vpn_ips[inventory_hostname] }}/24 on {{ wg_interface }}"
+
+    - name: Check WireGuard handshakes
+      become: true
+      ansible.builtin.command:
+        cmd: wg show "{{ wg_interface }}" latest-handshakes
+      changed_when: false
+      register: wg_handshakes
+
+    - name: Assert at least one handshake exists
+      ansible.builtin.assert:
+        that:
+          - wg_handshakes.stdout_lines | select('search', '\\s[1-9][0-9]*$') | list | length > 0
+        fail_msg: "{{ inventory_hostname }} has no WireGuard handshakes on {{ wg_interface }}"
+
+    - name: Ping expected VPN peers
+      ansible.builtin.command:
+        cmd: ping -c "{{ ping_count }}" "{{ vpn_ips[item] }}"
+      changed_when: false
+      loop: "{{ vpn_peers_by_host[inventory_hostname] }}"
+
+    - name: Ping expected private peers
+      ansible.builtin.command:
+        cmd: ping -c "{{ ping_count }}" "{{ private_ips[item] }}"
+      changed_when: false
+      loop: "{{ vpn_peers_by_host[inventory_hostname] | intersect(private_ips.keys() | list) }}"
