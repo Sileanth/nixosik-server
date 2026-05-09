@@ -53,6 +53,7 @@ in
   };
 
   nix.settings.sandbox = false;
+  nix.settings.filter-syscalls = false;
 
   systemd.services = lib.mkIf isMain {
     deploy-kotek = mkDeployService "kotek" hosts.kotek;
