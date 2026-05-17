@@ -10,28 +10,10 @@ let
     "127.0.0.1/32"
   ];
 
-  mkVhost = extra: {
+  commonVhost = {
     enableACME = true;
     forceSSL = true;
     acmeRoot = null;
-  } // extra;
-
-  mkPublicVhost = text: mkVhost {
-    locations."/".extraConfig = ''
-      default_type text/plain;
-      return 200 "${text}\n";
-    '';
-  };
-
-  mkPrivateVhost = text: mkVhost {
-    extraConfig = ''
-      ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
-      deny all;
-    '';
-    locations."/".extraConfig = ''
-      default_type text/plain;
-      return 200 "${text}\n";
-    '';
   };
 in
 {
@@ -58,10 +40,37 @@ in
       recommendedProxySettings = true;
 
       virtualHosts = {
-        "${domain}" = mkPublicVhost "sileanth.pl";
-        "public.${domain}" = mkPublicVhost "public example";
-        "kot.${domain}" = mkPublicVhost "public example";
-        "private.${domain}" = mkPrivateVhost "private example";
+        "${domain}" = commonVhost // {
+          locations."/".extraConfig = ''
+            default_type text/plain;
+            return 200 "sileanth.pl\n";
+          '';
+        };
+
+        "public.${domain}" = commonVhost // {
+          locations."/".extraConfig = ''
+            default_type text/plain;
+            return 200 "public example\n";
+          '';
+        };
+
+        "kot.${domain}" = commonVhost // {
+          locations."/".extraConfig = ''
+            default_type text/plain;
+            return 200 "public example\n";
+          '';
+        };
+
+        "private.${domain}" = commonVhost // {
+          extraConfig = ''
+            ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
+            deny all;
+          '';
+          locations."/".extraConfig = ''
+            default_type text/plain;
+            return 200 "private example\n";
+          '';
+        };
       };
     };
 
