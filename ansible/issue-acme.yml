@@ -4,6 +4,7 @@
   remote_user: sileanth
   vars:
     acme_domains:
+      - sileanth.pl
       - private.sileanth.pl
       - public.sileanth.pl
   tasks:

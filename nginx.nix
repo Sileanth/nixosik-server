@@ -17,7 +17,10 @@ let
   } // extra;
 
   mkPublicVhost = text: mkVhost {
-    locations."/".return = "200 \"${text}\\n\"";
+    locations."/".extraConfig = ''
+      default_type text/plain;
+      return 200 "${text}\n";
+    '';
   };
 
   mkPrivateVhost = text: mkVhost {
@@ -25,7 +28,10 @@ let
       ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
       deny all;
     '';
-    locations."/".return = "200 \"${text}\\n\"";
+    locations."/".extraConfig = ''
+      default_type text/plain;
+      return 200 "${text}\n";
+    '';
   };
 in
 {
@@ -52,6 +58,7 @@ in
       recommendedProxySettings = true;
 
       virtualHosts = {
+        "${domain}" = mkPublicVhost "sileanth.pl";
         "public.${domain}" = mkPublicVhost "public example";
         "private.${domain}" = mkPrivateVhost "private example";
       };
