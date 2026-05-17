@@ -1,4 +1,4 @@
-{ config, lib, pkgs, name, hosts, ... }:
+{ config, lib, pkgs, name, hostInfo, hosts, ... }:
 
 let
   domain = "sileanth.pl";
@@ -24,6 +24,11 @@ let
   };
 
   mkPrivateVhost = text: mkVhost {
+    listenAddresses = [
+      hostInfo.private
+      hostInfo.vpnIp
+      "127.0.0.1"
+    ];
     extraConfig = ''
       ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
       deny all;
