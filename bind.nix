@@ -16,6 +16,7 @@ let
 in {
   networking.firewall.allowedTCPPorts = [ 53 ];
   networking.firewall.allowedUDPPorts = [ 53 ];
+systemd.services.bind.serviceConfig.StateDirectory = "bind";
   services.bind = {
     enable = true;
     extraConfig = ''
@@ -30,11 +31,7 @@ in {
     tcp-clients 50;
     tcp-idle-timeout 5000;    # 5 s in milliseconds
     deny-answer-addresses { any; } except-from { "${domain}"; };
-      #    - "responses-per-second": hard cap on identical answers
-      #    - "all-per-second": cap on ALL responses to one source (anti-flood)
-      #    - "slip 2": every 2nd excess query gets a TRUNCATED answer,
-      #      nudging legit clients to retry over TCP (amplification is UDP-only)
-      #    - "window 5": rolling 5-second accounting window
+
       rate-limit {
         responses-per-second 5;
         referrals-per-second  2;

@@ -19,7 +19,7 @@
         ./hardware/${name}-hardware.nix
         ./common.nix
         ./networking.nix
-        ./bind.nix
+        # ./bind.nix
         ./caddy.nix
         ./wireguard.nix
         ./auto-upgrade.nix
