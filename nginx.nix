@@ -38,6 +38,15 @@ let
       return 200 "${text}\n";
     '';
   };
+
+  mkPrivatePublicBlock = {
+    serverName = "private.${domain}";
+    listenAddresses = [ hostInfo.public ];
+    onlySSL = true;
+    sslCertificate = "/var/lib/acme/private.${domain}/fullchain.pem";
+    sslCertificateKey = "/var/lib/acme/private.${domain}/key.pem";
+    locations."/".return = "403";
+  };
 in
 {
   config = lib.mkIf (name == "main") {
@@ -67,6 +76,7 @@ in
         "public.${domain}" = mkPublicVhost "public example";
         "kot.${domain}" = mkPublicVhost "public example";
         "private.${domain}" = mkPrivateVhost "private example";
+        "private-public-block.${domain}" = mkPrivatePublicBlock;
       };
     };
 
