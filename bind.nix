@@ -7,6 +7,7 @@ let
   mainIp   = hosts.main.public;
   kotekIp  = hosts.kotek.public;
   piesekIp = hosts.piesek.public;
+  acmeKeyName = "rfc2136key.${domain}.";
 
   isMaster = name == "main";
   isSlave  = name == "kotek" || name == "piesek";
@@ -22,11 +23,15 @@ in {
 
   services.bind = {
     enable = true;
+    checkConfig = !isMaster;
     cacheNetworks = [];
     extraConfig = ''
 
       acl "slaves"  { ${aclEntries trustedSlaves} };
       acl "masters" { ${aclEntries masterAcl} };
+    '' + lib.optionalString isMaster ''
+
+      include "/var/lib/bind/dnskeys.conf";
     '';
     extraOptions = ''
       version "none";
@@ -61,36 +66,11 @@ in {
         master = true;
         slaves = [ kotekIp piesekIp ];
         extraConfig = ''
-          allow-update   { none; };
+          allow-update { key ${acmeKeyName}; };
           notify yes;
           also-notify { ${aclEntries [ kotekIp piesekIp ]} };
         '';
-        file = pkgs.writeText "${domain}.zone" ''
-          $TTL 30      ; Default TTL (30 seconds)
-          
-          @       IN      SOA     ns0.${domain}. admin.${domain}. (
-                          2026050302 ; serial
-                          60         ; refresh (1 min)   - PROD: 7200 (2h)
-                          30         ; retry (30 sec)    - PROD: 3600 (1h)
-                          120        ; expire (2 mins)   - PROD: 1209600 (2w)
-                          30         ; minimum (30 sec)  - PROD: 3600 (1h)
-          )
-          
-          ; Name Servers
-          @       IN      NS      ns0.${domain}.
-          @       IN      NS      ns1.${domain}.
-          @       IN      NS      ns2.${domain}.
-          
-          ; Glue Records / A Records for NS
-          ns0     IN      A       ${mainIp}
-          ns1     IN      A       ${kotekIp}
-          ns2     IN      A       ${piesekIp}
-          
-          ; Main traffic records
-          @       IN      A       ${mainIp}
-          *       IN      A       ${mainIp}
-
-        '';
+        file = "/var/lib/bind/${domain}.zone";
       } else {
         master = false;
         masters = [ mainIp ];
@@ -101,5 +81,71 @@ in {
         '';
       };
     };
+  };
+
+  systemd.services.bind-rfc2136-conf = lib.mkIf isMaster {
+    requiredBy = [ "bind.service" ];
+    before = [ "bind.service" ];
+    unitConfig.ConditionPathExists = "!/var/lib/bind/dnskeys.conf";
+    serviceConfig = {
+      Type = "oneshot";
+      UMask = "0077";
+    };
+    path = [ pkgs.bind ];
+    script = ''
+      tsig-keygen -a hmac-sha256 ${acmeKeyName} > /var/lib/bind/dnskeys.conf
+      chown named:named /var/lib/bind/dnskeys.conf
+      chmod 0400 /var/lib/bind/dnskeys.conf
+
+      secret="$(
+        sed -n 's/^[[:space:]]*secret[[:space:]]*"\(.*\)";/\1/p' /var/lib/bind/dnskeys.conf
+      )"
+
+      {
+        printf '%s\n' "RFC2136_NAMESERVER='127.0.0.1:53'"
+        printf '%s\n' "RFC2136_TSIG_ALGORITHM='hmac-sha256.'"
+        printf '%s\n' "RFC2136_TSIG_KEY='${acmeKeyName}'"
+        printf '%s\n' "RFC2136_TSIG_SECRET='$secret'"
+      } > /var/lib/bind/acme-rfc2136.env
+      chown root:root /var/lib/bind/acme-rfc2136.env
+      chmod 0400 /var/lib/bind/acme-rfc2136.env
+    '';
+  };
+
+  systemd.services.bind-zone-init = lib.mkIf isMaster {
+    requiredBy = [ "bind.service" ];
+    before = [ "bind.service" ];
+    unitConfig.ConditionPathExists = "!/var/lib/bind/${domain}.zone";
+    serviceConfig.Type = "oneshot";
+    script = ''
+      cat > /var/lib/bind/${domain}.zone <<'EOF'
+      $TTL 30      ; Default TTL (30 seconds)
+
+      @       IN      SOA     ns0.${domain}. admin.${domain}. (
+                              2026050302 ; serial
+                              60         ; refresh (1 min)   - PROD: 7200 (2h)
+                              30         ; retry (30 sec)    - PROD: 3600 (1h)
+                              120        ; expire (2 mins)   - PROD: 1209600 (2w)
+                              30         ; minimum (30 sec)  - PROD: 3600 (1h)
+      )
+
+      ; Name Servers
+      @       IN      NS      ns0.${domain}.
+      @       IN      NS      ns1.${domain}.
+      @       IN      NS      ns2.${domain}.
+
+      ; Glue Records / A Records for NS
+      ns0     IN      A       ${mainIp}
+      ns1     IN      A       ${kotekIp}
+      ns2     IN      A       ${piesekIp}
+
+      ; Main traffic records
+      @       IN      A       ${mainIp}
+      *       IN      A       ${mainIp}
+      EOF
+
+      chown named:named /var/lib/bind/${domain}.zone
+      chmod 0640 /var/lib/bind/${domain}.zone
+    '';
   };
 }

@@ -20,7 +20,7 @@
         ./common.nix
         ./networking.nix
         ./bind.nix
-        ./caddy.nix
+        ./nginx.nix
         ./wireguard.nix
         ./auto-upgrade.nix
         ./monitoring.nix
