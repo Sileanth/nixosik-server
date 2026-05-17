@@ -59,7 +59,7 @@ in
             allow 127.0.0.1;
             allow 10.200.0.0/24;
             allow ::1;
-            deny all
+            deny all;
             default_type text/plain;
             return 200 "public example\n";
           '';
