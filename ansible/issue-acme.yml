@@ -1,0 +1,51 @@
+---
+- name: Issue ACME certificates on main
+  hosts: main
+  remote_user: sileanth
+  vars:
+    acme_domains:
+      - private.sileanth.pl
+      - public.sileanth.pl
+  tasks:
+    - name: Start ACME order/renew units
+      become: true
+      ansible.builtin.systemd:
+        name: "acme-order-renew-{{ item }}.service"
+        state: started
+      loop: "{{ acme_domains }}"
+
+    - name: Reload nginx after ACME run
+      become: true
+      ansible.builtin.systemd:
+        name: nginx.service
+        state: reloaded
+
+    - name: Show recent ACME logs
+      become: true
+      ansible.builtin.command:
+        cmd: "journalctl -u acme-order-renew-{{ item }}.service -n 80 --no-pager"
+      loop: "{{ acme_domains }}"
+      changed_when: false
+      register: acme_logs
+
+    - name: Print ACME logs
+      ansible.builtin.debug:
+        msg: "{{ item.stdout_lines }}"
+      loop: "{{ acme_logs.results }}"
+
+    - name: Show served certificate issuer
+      ansible.builtin.shell:
+        cmd: >
+          nix --extra-experimental-features 'nix-command flakes'
+          shell nixpkgs#openssl -c sh -c
+          'openssl s_client -connect {{ item }}:443 -servername {{ item }}
+          </dev/null 2>/dev/null
+          | openssl x509 -noout -issuer -subject -dates'
+      loop: "{{ acme_domains }}"
+      changed_when: false
+      register: certs
+
+    - name: Print served certificate issuer
+      ansible.builtin.debug:
+        msg: "{{ item.stdout_lines }}"
+      loop: "{{ certs.results }}"
