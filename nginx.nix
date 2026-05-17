@@ -11,7 +11,6 @@ let
   localHosts = [
     "${hosts.kotek.private}/32"
     "${hosts.piesek.private}/32"
-    "${hosts.main.private}/32"
   ];
 
   mkVhost = extra: {
