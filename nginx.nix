@@ -1,16 +1,13 @@
-{ config, lib, pkgs, name, hostInfo, hosts, ... }:
+{ config, lib, pkgs, name, hosts, ... }:
 
 let
   domain = "sileanth.pl";
   acmeEmail = "admin@${domain}";
   acmeEnvFile = "/var/lib/bind/acme-rfc2136.env";
   localNetworks = [
+    "10.0.0.0/24"
     "10.200.0.0/24"
     "127.0.0.1/32"
-  ];
-  localHosts = [
-    "${hosts.kotek.private}/32"
-    "${hosts.piesek.private}/32"
   ];
 
   mkVhost = extra: {
@@ -27,28 +24,14 @@ let
   };
 
   mkPrivateVhost = text: mkVhost {
-    listenAddresses = [
-      hostInfo.private
-      hostInfo.vpnIp
-      "127.0.0.1"
-    ];
     extraConfig = ''
-      ${lib.concatMapStringsSep "\n" (network: "allow ${network};") (localNetworks ++ localHosts)}
+      ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
       deny all;
     '';
     locations."/".extraConfig = ''
       default_type text/plain;
       return 200 "${text}\n";
     '';
-  };
-
-  mkPrivatePublicBlock = {
-    serverName = "private.${domain}";
-    listenAddresses = [ hostInfo.public ];
-    onlySSL = true;
-    sslCertificate = "/var/lib/acme/private.${domain}/fullchain.pem";
-    sslCertificateKey = "/var/lib/acme/private.${domain}/key.pem";
-    locations."/".return = "403";
   };
 in
 {
@@ -79,7 +62,6 @@ in
         "public.${domain}" = mkPublicVhost "public example";
         "kot.${domain}" = mkPublicVhost "public example";
         "private.${domain}" = mkPrivateVhost "private example";
-        "private-public-block.${domain}" = mkPrivatePublicBlock;
       };
     };
 
