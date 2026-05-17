@@ -12,25 +12,37 @@ let
   isSlave  = name == "kotek" || name == "piesek";
   trustedSlaves = [ "${kotekIp}/32" "${piesekIp}/32" ];
   masterAcl     = [ "${mainIp}/32" ];
+  aclEntries = entries: lib.concatStringsSep " " (map (entry: "${entry};") entries);
 
 in {
   networking.firewall.allowedTCPPorts = [ 53 ];
   networking.firewall.allowedUDPPorts = [ 53 ];
-systemd.services.bind.serviceConfig.StateDirectory = "bind";
+
+  systemd.services.bind.serviceConfig.StateDirectory = "bind";
+
   services.bind = {
     enable = true;
+    cacheNetworks = [];
     extraConfig = ''
 
-      acl "slaves"  { ${lib.concatStringsSep "; " trustedSlaves}; };
-      acl "masters" { ${lib.concatStringsSep "; " masterAcl};     };
+      acl "slaves"  { ${aclEntries trustedSlaves} };
+      acl "masters" { ${aclEntries masterAcl} };
     '';
-   extraOptions = ''
-    version "none";
-    recursion no;
-    max-udp-size 512;
-    tcp-clients 50;
-    tcp-idle-timeout 5000;    # 5 s in milliseconds
-    deny-answer-addresses { any; } except-from { "${domain}"; };
+    extraOptions = ''
+      version "none";
+
+      recursion no;
+      allow-recursion { none; };
+      allow-query-cache-on { none; };
+      minimal-responses yes;
+
+      max-cache-ttl 30;
+      max-ncache-ttl 30;
+      max-cache-size 16M;
+
+      max-udp-size 512;
+      tcp-clients 50;
+      tcp-idle-timeout 5;
 
       rate-limit {
         responses-per-second 5;
@@ -42,13 +54,16 @@ systemd.services.bind.serviceConfig.StateDirectory = "bind";
         window                5;
         log-only             no;
       };
-   '';
+    '';
 
     zones = lib.mkIf (isMaster || isSlave) {
       "${domain}" = if isMaster then {
         master = true;
         slaves = [ kotekIp piesekIp ];
         extraConfig = ''
+          allow-update   { none; };
+          notify yes;
+          also-notify { ${aclEntries [ kotekIp piesekIp ]} };
         '';
         file = pkgs.writeText "${domain}.zone" ''
           $TTL 30      ; Default TTL (30 seconds)
