@@ -5,9 +5,13 @@ let
   acmeEmail = "admin@${domain}";
   acmeEnvFile = "/var/lib/bind/acme-rfc2136.env";
   localNetworks = [
-    "10.0.0.0/24"
     "10.200.0.0/24"
     "127.0.0.1/32"
+  ];
+  localHosts = [
+    "${hosts.kotek.private}/32"
+    "${hosts.piesek.private}/32"
+    "${hosts.main.private}/32"
   ];
 
   mkVhost = extra: {
@@ -30,7 +34,7 @@ let
       "127.0.0.1"
     ];
     extraConfig = ''
-      ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
+      ${lib.concatMapStringsSep "\n" (network: "allow ${network};") (localNetworks ++ localHosts)}
       deny all;
     '';
     locations."/".extraConfig = ''
