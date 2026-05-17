@@ -56,6 +56,7 @@ in
 
         "kot.${domain}" = commonVhost // {
           locations."/".extraConfig = ''
+            deny all
             default_type text/plain;
             return 200 "public example\n";
           '';
