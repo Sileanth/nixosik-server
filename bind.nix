@@ -52,10 +52,6 @@ in {
         master = true;
         slaves = [ kotekIp piesekIp ];
         extraConfig = ''
-          allow-transfer  { slaves; };
-          allow-notify    { slaves; };
-          notify          yes;
-          also-notify     { ${kotekIp}; ${piesekIp}; };
         '';
         file = pkgs.writeText "${domain}.zone" ''
           $TTL 30      ; Default TTL (30 seconds)
