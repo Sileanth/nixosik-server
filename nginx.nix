@@ -60,6 +60,7 @@ in
       virtualHosts = {
         "${domain}" = mkPublicVhost "sileanth.pl";
         "public.${domain}" = mkPublicVhost "public example";
+        "kot.${domain}" = mkPublicVhost "public example";
         "private.${domain}" = mkPrivateVhost "private example";
       };
     };
