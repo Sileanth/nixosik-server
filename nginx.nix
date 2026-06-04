@@ -69,10 +69,10 @@ in
             # ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
               locations."/" = {
 
-      # allow 127.0.0.1;
-      # allow ::1;
-      # allow 10.200.0.0/24;
     extraConfig = ''
+      allow 127.0.0.1;
+      allow ::1;
+      allow 10.200.0.0/24;
       deny all;
     '';
 
