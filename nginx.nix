@@ -67,12 +67,17 @@ in
 
         "private.${domain}" = commonVhost // {
             # ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
-          extraConfig = ''
-            deny all;
-            default_type text/plain;
-            return 200 "private example\n";
-          '';
-        };
+              locations."/" = {
+
+      # allow 127.0.0.1;
+      # allow ::1;
+      # allow 10.200.0.0/24;
+    extraConfig = ''
+      deny all;
+    '';
+  };
+
+  root = pkgs.writeTextDir "index.txt" "private example";
       };
     };
 
