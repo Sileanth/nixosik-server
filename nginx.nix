@@ -79,6 +79,7 @@ in
   root = pkgs.writeTextDir "index.txt" "private example";
       };
     };
+      };
 
     networking.firewall.allowedTCPPorts = [ 80 443 ];
   };
