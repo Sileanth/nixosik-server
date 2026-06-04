@@ -136,6 +136,7 @@ in {
   system.activationScripts.bindZones = lib.mkIf isMaster {
     deps = [ "users" ];
     text = ''
+      export PATH="${pkgs.gnused}/bin:$PATH"
       install -d -o named -g named -m 0750 /var/lib/bind
 
       serial="$(date +%Y%m%d%H%M%S)"
@@ -166,7 +167,7 @@ in {
       *       IN      A       ${mainIp}
       EOF
 
-      ${pkgs.gnused} -i "s/SERIAL/$serial/" /var/lib/bind/${domain}.zone
+      sed -i "s/SERIAL/$serial/" /var/lib/bind/${domain}.zone
 
       chown named:named /var/lib/bind/${domain}.zone
       chmod 0640 /var/lib/bind/${domain}.zone
@@ -191,7 +192,7 @@ in {
       @       IN      A       ${mainVpnIp}
       EOF
 
-      ${pkgs.gnused} -i "s/SERIAL/$serial/" /var/lib/bind/${privateDomain}.zone
+      sed -i "s/SERIAL/$serial/" /var/lib/bind/${privateDomain}.zone
 
       chown named:named /var/lib/bind/${privateDomain}.zone
       chmod 0640 /var/lib/bind/${privateDomain}.zone
