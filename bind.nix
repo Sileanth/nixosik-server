@@ -166,7 +166,7 @@ in {
       *       IN      A       ${mainIp}
       EOF
 
-      sed -i "s/SERIAL/${serial}/" /var/lib/bind/${domain}.zone
+      sed -i "s/SERIAL/$serial/" /var/lib/bind/${domain}.zone
 
       chown named:named /var/lib/bind/${domain}.zone
       chmod 0640 /var/lib/bind/${domain}.zone
@@ -191,7 +191,7 @@ in {
       @       IN      A       ${mainVpnIp}
       EOF
 
-      sed -i "s/SERIAL/${serial}/" /var/lib/bind/${privateDomain}.zone
+      sed -i "s/SERIAL/$serial/" /var/lib/bind/${privateDomain}.zone
 
       chown named:named /var/lib/bind/${privateDomain}.zone
       chmod 0640 /var/lib/bind/${privateDomain}.zone
