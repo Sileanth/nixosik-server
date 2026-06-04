@@ -66,8 +66,8 @@ in
         };
 
         "private.${domain}" = commonVhost // {
+            # ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
           extraConfig = ''
-            ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
             deny all;
           '';
           locations."/".extraConfig = ''
