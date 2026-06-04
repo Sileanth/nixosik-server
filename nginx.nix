@@ -8,7 +8,9 @@ let
     "10.0.0.0/24"
     "10.200.0.0/24"
     "127.0.0.1/32"
+    "::1/128"
   ];
+  allowLocalNetworks = lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks;
 
   commonVhost = {
     enableACME = true;
@@ -66,21 +68,16 @@ in
         };
 
         "private.${domain}" = commonVhost // {
-            # ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
-              locations."/" = {
-
-    extraConfig = ''
-      allow 127.0.0.1;
-      allow ::1;
-      allow 10.200.0.0/24;
-      deny all;
-    '';
-
-  root = pkgs.writeTextDir "index.txt" "private example";
+          locations."/" = {
+            extraConfig = ''
+              ${allowLocalNetworks}
+              deny all;
+            '';
+            root = pkgs.writeTextDir "index.html" "private example";
+          };
+        };
       };
     };
-      };
-      };
 
     networking.firewall.allowedTCPPorts = [ 80 443 ];
   };
