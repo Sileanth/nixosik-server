@@ -175,7 +175,7 @@ in {
       $TTL 30      ; Default TTL (30 seconds)
 
       @       IN      SOA     ns0.${domain}. admin.${domain}. (
-                              SERIAL     ; serial
+                              SERIAL     ; $serial
                               60         ; refresh (1 min)   - PROD: 7200 (2h)
                               30         ; retry (30 sec)    - PROD: 3600 (1h)
                               120        ; expire (2 mins)   - PROD: 1209600 (2w)
