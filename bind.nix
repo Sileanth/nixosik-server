@@ -5,10 +5,10 @@ let
   domain = "sileanth.pl";
   privateDomain = "private.${domain}";
   
-  mainIp   = hosts.main.public;
+  mainIp    = hosts.main.public;
   mainVpnIp = hosts.main.vpnIp;
-  kotekIp  = hosts.kotek.public;
-  piesekIp = hosts.piesek.public;
+  kotekIp   = hosts.kotek.public;
+  piesekIp  = hosts.piesek.public;
   acmeKeyName = "rfc2136key.${domain}.";
 
   isMaster = name == "main";
@@ -16,6 +16,54 @@ let
   trustedSlaves = [ "${kotekIp}/32" "${piesekIp}/32" ];
   masterAcl     = [ "${mainIp}/32" ];
   aclEntries = entries: lib.concatStringsSep " " (map (entry: "${entry};") entries);
+
+  serial = "2025010100";
+
+  mainZone = pkgs.writeText "${domain}.zone" ''
+    $TTL 30      ; Default TTL (30 seconds)
+
+    @       IN      SOA     ns0.${domain}. admin.${domain}. (
+                            ${serial}  ; serial
+                            60         ; refresh
+                            30         ; retry
+                            120        ; expire
+                            30         ; minimum
+    )
+
+    ; Name Servers
+    @       IN      NS      ns0.${domain}.
+    @       IN      NS      ns1.${domain}.
+    @       IN      NS      ns2.${domain}.
+
+    ; Glue Records / A Records for NS
+    ns0     IN      A       ${mainIp}
+    ns1     IN      A       ${kotekIp}
+    ns2     IN      A       ${piesekIp}
+
+    ; Main traffic records
+    @       IN      A       ${mainIp}
+    *       IN      A       ${mainIp}
+  '';
+
+  privateZone = pkgs.writeText "${privateDomain}.zone" ''
+    $TTL 30      ; Default TTL (30 seconds)
+
+    @       IN      SOA     ns0.${domain}. admin.${domain}. (
+                            ${serial}  ; serial
+                            60         ; refresh
+                            30         ; retry
+                            120        ; expire
+                            30         ; minimum
+    )
+
+    ; Name Servers
+    @       IN      NS      ns0.${domain}.
+    @       IN      NS      ns1.${domain}.
+    @       IN      NS      ns2.${domain}.
+
+    ; Private traffic records
+    @       IN      A       ${mainVpnIp}
+  '';
 
 in {
   networking.firewall.allowedTCPPorts = [ 53 ];
@@ -28,7 +76,6 @@ in {
     checkConfig = !isMaster;
     cacheNetworks = [];
     extraConfig = ''
-
       acl "slaves"  { ${aclEntries trustedSlaves} };
       acl "masters" { ${aclEntries masterAcl} };
     '' + lib.optionalString isMaster ''
@@ -72,7 +119,7 @@ in {
           notify yes;
           also-notify { ${aclEntries [ kotekIp piesekIp ]} };
         '';
-        file = "/var/lib/bind/${domain}.zone";
+        file = "${mainZone}";
       } else {
         master = false;
         masters = [ mainIp ];
@@ -91,7 +138,7 @@ in {
           notify yes;
           also-notify { ${aclEntries [ kotekIp piesekIp ]} };
         '';
-        file = "/var/lib/bind/${privateDomain}.zone";
+        file = "${privateZone}";
       } else {
         master = false;
         masters = [ mainIp ];
@@ -112,7 +159,7 @@ in {
       Type = "oneshot";
       UMask = "0077";
     };
-    path = [ pkgs.bind ];
+    path = [ pkgs.bind pkgs.gnused ];
     script = ''
       tsig-keygen -a hmac-sha256 ${acmeKeyName} > /var/lib/bind/dnskeys.conf
       chown named:named /var/lib/bind/dnskeys.conf
@@ -130,76 +177,6 @@ in {
       } > /var/lib/bind/acme-rfc2136.env
       chown root:root /var/lib/bind/acme-rfc2136.env
       chmod 0400 /var/lib/bind/acme-rfc2136.env
-    '';
-  };
-
-  system.activationScripts.bindZones = lib.mkIf isMaster {
-    deps = [ "users" ];
-    text = ''
-      export PATH="${pkgs.gnused}/bin:$PATH"
-      install -d -o named -g named -m 0750 /var/lib/bind
-
-      serial="$(date +%Y%m%d%H%M%S)"
-
-      cat > /var/lib/bind/${domain}.zone <<'EOF'
-      $TTL 30      ; Default TTL (30 seconds)
-
-      @       IN      SOA     ns0.${domain}. admin.${domain}. (
-                              SERIAL     ; serial
-                              60         ; refresh (1 min)   - PROD: 7200 (2h)
-                              30         ; retry (30 sec)    - PROD: 3600 (1h)
-                              120        ; expire (2 mins)   - PROD: 1209600 (2w)
-                              30         ; minimum (30 sec)  - PROD: 3600 (1h)
-      )
-
-      ; Name Servers
-      @       IN      NS      ns0.${domain}.
-      @       IN      NS      ns1.${domain}.
-      @       IN      NS      ns2.${domain}.
-
-      ; Glue Records / A Records for NS
-      ns0     IN      A       ${mainIp}
-      ns1     IN      A       ${kotekIp}
-      ns2     IN      A       ${piesekIp}
-
-      ; Main traffic records
-      @       IN      A       ${mainIp}
-      *       IN      A       ${mainIp}
-      EOF
-
-      sed -i "s/SERIAL/$serial/" /var/lib/bind/${domain}.zone
-
-      chown named:named /var/lib/bind/${domain}.zone
-      chmod 0640 /var/lib/bind/${domain}.zone
-
-      cat > /var/lib/bind/${privateDomain}.zone <<'EOF'
-      $TTL 30      ; Default TTL (30 seconds)
-
-      @       IN      SOA     ns0.${domain}. admin.${domain}. (
-                              SERIAL     ; serial
-                              60         ; refresh (1 min)   - PROD: 7200 (2h)
-                              30         ; retry (30 sec)    - PROD: 3600 (1h)
-                              120        ; expire (2 mins)   - PROD: 1209600 (2w)
-                              30         ; minimum (30 sec)  - PROD: 3600 (1h)
-      )
-
-      ; Name Servers
-      @       IN      NS      ns0.${domain}.
-      @       IN      NS      ns1.${domain}.
-      @       IN      NS      ns2.${domain}.
-
-      ; Private traffic records
-      @       IN      A       ${mainVpnIp}
-      EOF
-
-      sed -i "s/SERIAL/$serial/" /var/lib/bind/${privateDomain}.zone
-
-      chown named:named /var/lib/bind/${privateDomain}.zone
-      chmod 0640 /var/lib/bind/${privateDomain}.zone
-
-      if ${pkgs.systemd}/bin/systemctl is-active --quiet bind.service; then
-        ${pkgs.systemd}/bin/systemctl try-restart bind.service
-      fi
     '';
   };
 }
