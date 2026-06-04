@@ -3,8 +3,10 @@
 let
   hosts = import ./hosts.nix;
   domain = "sileanth.pl";
+  privateDomain = "private.${domain}";
   
   mainIp   = hosts.main.public;
+  mainVpnIp = hosts.main.vpnIp;
   kotekIp  = hosts.kotek.public;
   piesekIp = hosts.piesek.public;
   acmeKeyName = "rfc2136key.${domain}.";
@@ -80,6 +82,25 @@ in {
           allow-notify    { masters; };
         '';
       };
+
+      "${privateDomain}" = if isMaster then {
+        master = true;
+        slaves = [ kotekIp piesekIp ];
+        extraConfig = ''
+          allow-update { key ${acmeKeyName}; };
+          notify yes;
+          also-notify { ${aclEntries [ kotekIp piesekIp ]} };
+        '';
+        file = "/var/lib/bind/${privateDomain}.zone";
+      } else {
+        master = false;
+        masters = [ mainIp ];
+        file = "/var/lib/bind/${privateDomain}.zone";
+        extraConfig = ''
+          allow-transfer  { none; };
+          allow-notify    { masters; };
+        '';
+      };
     };
   };
 
@@ -146,6 +167,37 @@ in {
 
       chown named:named /var/lib/bind/${domain}.zone
       chmod 0640 /var/lib/bind/${domain}.zone
+    '';
+  };
+
+  systemd.services.bind-private-zone-init = lib.mkIf isMaster {
+    requiredBy = [ "bind.service" ];
+    before = [ "bind.service" ];
+    unitConfig.ConditionPathExists = "!/var/lib/bind/${privateDomain}.zone";
+    serviceConfig.Type = "oneshot";
+    script = ''
+      cat > /var/lib/bind/${privateDomain}.zone <<'EOF'
+      $TTL 30      ; Default TTL (30 seconds)
+
+      @       IN      SOA     ns0.${domain}. admin.${domain}. (
+                              2026060401 ; serial
+                              60         ; refresh (1 min)   - PROD: 7200 (2h)
+                              30         ; retry (30 sec)    - PROD: 3600 (1h)
+                              120        ; expire (2 mins)   - PROD: 1209600 (2w)
+                              30         ; minimum (30 sec)  - PROD: 3600 (1h)
+      )
+
+      ; Name Servers
+      @       IN      NS      ns0.${domain}.
+      @       IN      NS      ns1.${domain}.
+      @       IN      NS      ns2.${domain}.
+
+      ; Private traffic records
+      @       IN      A       ${mainVpnIp}
+      EOF
+
+      chown named:named /var/lib/bind/${privateDomain}.zone
+      chmod 0640 /var/lib/bind/${privateDomain}.zone
     '';
   };
 }
