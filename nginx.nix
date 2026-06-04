@@ -75,7 +75,6 @@ in
     extraConfig = ''
       deny all;
     '';
-  };
 
   root = pkgs.writeTextDir "index.txt" "private example";
       };
