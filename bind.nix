@@ -17,7 +17,7 @@ let
   masterAcl     = [ "${mainIp}/32" ];
   aclEntries = entries: lib.concatStringsSep " " (map (entry: "${entry};") entries);
 
-  serial = "2025010100";
+  serial = "2025010101";
 
   mainZone = pkgs.writeText "${domain}.zone" ''
     $TTL 30      ; Default TTL (30 seconds)
