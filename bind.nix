@@ -133,17 +133,18 @@ in {
     '';
   };
 
-  systemd.services.bind-zone-init = lib.mkIf isMaster {
-    requiredBy = [ "bind.service" ];
-    before = [ "bind.service" ];
-    unitConfig.ConditionPathExists = "!/var/lib/bind/${domain}.zone";
-    serviceConfig.Type = "oneshot";
-    script = ''
+  system.activationScripts.bindZones = lib.mkIf isMaster {
+    deps = [ "users" ];
+    text = ''
+      install -d -o named -g named -m 0750 /var/lib/bind
+
+      serial="$(date +%Y%m%d%H%M%S)"
+
       cat > /var/lib/bind/${domain}.zone <<'EOF'
       $TTL 30      ; Default TTL (30 seconds)
 
       @       IN      SOA     ns0.${domain}. admin.${domain}. (
-                              2026050302 ; serial
+                              SERIAL     ; serial
                               60         ; refresh (1 min)   - PROD: 7200 (2h)
                               30         ; retry (30 sec)    - PROD: 3600 (1h)
                               120        ; expire (2 mins)   - PROD: 1209600 (2w)
@@ -165,22 +166,16 @@ in {
       *       IN      A       ${mainIp}
       EOF
 
+      sed -i "s/SERIAL/${serial}/" /var/lib/bind/${domain}.zone
+
       chown named:named /var/lib/bind/${domain}.zone
       chmod 0640 /var/lib/bind/${domain}.zone
-    '';
-  };
 
-  systemd.services.bind-private-zone-init = lib.mkIf isMaster {
-    requiredBy = [ "bind.service" ];
-    before = [ "bind.service" ];
-    unitConfig.ConditionPathExists = "!/var/lib/bind/${privateDomain}.zone";
-    serviceConfig.Type = "oneshot";
-    script = ''
       cat > /var/lib/bind/${privateDomain}.zone <<'EOF'
       $TTL 30      ; Default TTL (30 seconds)
 
       @       IN      SOA     ns0.${domain}. admin.${domain}. (
-                              2026060401 ; serial
+                              SERIAL     ; serial
                               60         ; refresh (1 min)   - PROD: 7200 (2h)
                               30         ; retry (30 sec)    - PROD: 3600 (1h)
                               120        ; expire (2 mins)   - PROD: 1209600 (2w)
@@ -196,8 +191,14 @@ in {
       @       IN      A       ${mainVpnIp}
       EOF
 
+      sed -i "s/SERIAL/${serial}/" /var/lib/bind/${privateDomain}.zone
+
       chown named:named /var/lib/bind/${privateDomain}.zone
       chmod 0640 /var/lib/bind/${privateDomain}.zone
+
+      if ${pkgs.systemd}/bin/systemctl is-active --quiet bind.service; then
+        ${pkgs.systemd}/bin/systemctl try-restart bind.service
+      fi
     '';
   };
 }
