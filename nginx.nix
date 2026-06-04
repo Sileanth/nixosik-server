@@ -68,8 +68,6 @@ in
         "private.${domain}" = commonVhost // {
             # ${lib.concatMapStringsSep "\n" (network: "allow ${network};") localNetworks}
           extraConfig = ''
-          '';
-          locations."/".extraConfig = ''
             deny all;
             default_type text/plain;
             return 200 "private example\n";
