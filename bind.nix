@@ -135,64 +135,70 @@ in {
 
   system.activationScripts.bindZones = lib.mkIf isMaster {
     deps = [ "users" ];
-    text = let
-      serial = builtins.toString builtins.currentTime;
-    in ''
-  install -d -o named -g named -m 0750 /var/lib/bind
+    text = ''
+      install -d -o named -g named -m 0750 /var/lib/bind
 
-  cat > /var/lib/bind/${domain}.zone <<'EOF'
-$TTL 30
+      serial="$(date +%Y%m%d%H%M%S)"
 
-@       IN      SOA     ns0.${domain}. admin.${domain}. (
-                        ${serial}  ; serial
-                        60         ; refresh
-                        30         ; retry
-                        120        ; expire
-                        30         ; minimum
-)
+      cat > /var/lib/bind/${domain}.zone <<'EOF'
+      $TTL 30      ; Default TTL (30 seconds)
 
-; Name Servers
-@       IN      NS      ns0.${domain}.
-@       IN      NS      ns1.${domain}.
-@       IN      NS      ns2.${domain}.
+      @       IN      SOA     ns0.${domain}. admin.${domain}. (
+                              SERIAL     ; serial
+                              60         ; refresh (1 min)   - PROD: 7200 (2h)
+                              30         ; retry (30 sec)    - PROD: 3600 (1h)
+                              120        ; expire (2 mins)   - PROD: 1209600 (2w)
+                              30         ; minimum (30 sec)  - PROD: 3600 (1h)
+      )
 
-ns0     IN      A       ${mainIp}
-ns1     IN      A       ${kotekIp}
-ns2     IN      A       ${piesekIp}
+      ; Name Servers
+      @       IN      NS      ns0.${domain}.
+      @       IN      NS      ns1.${domain}.
+      @       IN      NS      ns2.${domain}.
 
-@       IN      A       ${mainIp}
-*       IN      A       ${mainIp}
-EOF
+      ; Glue Records / A Records for NS
+      ns0     IN      A       ${mainIp}
+      ns1     IN      A       ${kotekIp}
+      ns2     IN      A       ${piesekIp}
 
-  chown named:named /var/lib/bind/${domain}.zone
-  chmod 0640 /var/lib/bind/${domain}.zone
+      ; Main traffic records
+      @       IN      A       ${mainIp}
+      *       IN      A       ${mainIp}
+      EOF
 
-  cat > /var/lib/bind/${privateDomain}.zone <<'EOF'
-$TTL 30
+      sed -i "s/SERIAL/${serial}/" /var/lib/bind/${domain}.zone
 
-@       IN      SOA     ns0.${domain}. admin.${domain}. (
-                        ${serial}  ; serial
-                        60         ; refresh
-                        30         ; retry
-                        120        ; expire
-                        30         ; minimum
-)
+      chown named:named /var/lib/bind/${domain}.zone
+      chmod 0640 /var/lib/bind/${domain}.zone
 
-; Name Servers
-@       IN      NS      ns0.${domain}.
-@       IN      NS      ns1.${domain}.
-@       IN      NS      ns2.${domain}.
+      cat > /var/lib/bind/${privateDomain}.zone <<'EOF'
+      $TTL 30      ; Default TTL (30 seconds)
 
-@       IN      A       ${mainVpnIp}
-EOF
+      @       IN      SOA     ns0.${domain}. admin.${domain}. (
+                              SERIAL     ; serial
+                              60         ; refresh (1 min)   - PROD: 7200 (2h)
+                              30         ; retry (30 sec)    - PROD: 3600 (1h)
+                              120        ; expire (2 mins)   - PROD: 1209600 (2w)
+                              30         ; minimum (30 sec)  - PROD: 3600 (1h)
+      )
 
-  chown named:named /var/lib/bind/${privateDomain}.zone
-  chmod 0640 /var/lib/bind/${privateDomain}.zone
+      ; Name Servers
+      @       IN      NS      ns0.${domain}.
+      @       IN      NS      ns1.${domain}.
+      @       IN      NS      ns2.${domain}.
 
-  if ${pkgs.systemd}/bin/systemctl is-active --quiet bind.service; then
-    ${pkgs.systemd}/bin/systemctl try-restart bind.service
-  fi
-'';
+      ; Private traffic records
+      @       IN      A       ${mainVpnIp}
+      EOF
 
+      sed -i "s/SERIAL/${serial}/" /var/lib/bind/${privateDomain}.zone
+
+      chown named:named /var/lib/bind/${privateDomain}.zone
+      chmod 0640 /var/lib/bind/${privateDomain}.zone
+
+      if ${pkgs.systemd}/bin/systemctl is-active --quiet bind.service; then
+        ${pkgs.systemd}/bin/systemctl try-restart bind.service
+      fi
+    '';
   };
 }
