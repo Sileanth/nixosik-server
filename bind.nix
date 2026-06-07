@@ -17,7 +17,7 @@ let
   masterAcl     = [ "${mainIp}/32" ];
   aclEntries = entries: lib.concatStringsSep " " (map (entry: "${entry};") entries);
 
-  serial = "2025010101";
+  serial = "2025010102";
 
   mainZone = pkgs.writeText "${domain}.zone" ''
     $TTL 30      ; Default TTL (30 seconds)
@@ -43,6 +43,9 @@ let
     ; Main traffic records
     @       IN      A       ${mainIp}
     *       IN      A       ${mainIp}
+
+
+    navidrome       IN      A       ${mainVpnIp}
   '';
 
   privateZone = pkgs.writeText "${privateDomain}.zone" ''
@@ -62,6 +65,7 @@ let
     @       IN      NS      ns2.${domain}.
 
     ; Private traffic records
+    @       IN      A       ${mainVpnIp}
     @       IN      A       ${mainVpnIp}
   '';
 

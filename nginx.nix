@@ -76,6 +76,17 @@ in
             root = pkgs.writeTextDir "index.html" "private example";
           };
         };
+
+
+        "navidrome.${domain}" = commonVhost // {
+          locations."/" = {
+            extraConfig = ''
+              ${allowLocalNetworks}
+              deny all;
+            '';
+            proxyPass = "http://127.0.0.1:4533";
+          };
+        };
       };
     };
 
