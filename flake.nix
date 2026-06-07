@@ -24,6 +24,7 @@
         ./wireguard.nix
         ./auto-upgrade.nix
         ./monitoring.nix
+        ./navidrome.nix
       ];
     };
     hostsToBuild = nixpkgs.lib.filterAttrs (n: v: !(v.isClient or false)) hosts;
