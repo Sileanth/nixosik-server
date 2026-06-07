@@ -221,7 +221,7 @@ in
   services.grafana = lib.mkIf isMain {
     enable = true;
     settings.server = {
-      http_addr = "10.200.0.1";
+      http_addr = "127.0.0.1";
       http_port = 3000;
     };
     settings.security.secret_key = "$__file{/secrets/grafana_secret_key}";

@@ -17,7 +17,7 @@ let
   masterAcl     = [ "${mainIp}/32" ];
   aclEntries = entries: lib.concatStringsSep " " (map (entry: "${entry};") entries);
 
-  serial = "2025010102";
+  serial = "2025010103";
 
   mainZone = pkgs.writeText "${domain}.zone" ''
     $TTL 30      ; Default TTL (30 seconds)
@@ -46,6 +46,7 @@ let
 
 
     navidrome       IN      A       ${mainVpnIp}
+    grafana       IN      A       ${mainVpnIp}
   '';
 
   privateZone = pkgs.writeText "${privateDomain}.zone" ''
