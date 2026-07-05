@@ -26,6 +26,7 @@
         ./monitoring.nix
         ./navidrome.nix
         ./audiobookshelf.nix
+        ./calibre-server.nix
       ];
     };
     hostsToBuild = nixpkgs.lib.filterAttrs (n: v: !(v.isClient or false)) hosts;

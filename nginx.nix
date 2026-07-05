@@ -48,6 +48,18 @@ let
     };
   };
 
+  calibreVhost = {
+    "calibre.${domain}" = commonVhost // {
+      locations."/" = {
+        extraConfig = ''
+          ${allowLocalNetworks}
+          deny all;
+        '';
+        proxyPass = "http://127.0.0.1:8080";
+      };
+    };
+  };
+
   mainVhosts = {
     "${domain}" = commonVhost // {
       locations."/".extraConfig = ''
@@ -122,7 +134,8 @@ in
       virtualHosts =
         lib.optionalAttrs isMain mainVhosts
         // lib.optionalAttrs isKotek navidromeVhost
-        // lib.optionalAttrs isPiesek audiobookshelfVhost;
+        // lib.optionalAttrs isPiesek audiobookshelfVhost
+        // lib.optionalAttrs isPiesek calibreVhost;
     };
 
     networking.firewall.allowedTCPPorts = [ 80 443 ];
