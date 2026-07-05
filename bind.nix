@@ -8,6 +8,7 @@ let
   mainIp    = hosts.main.public;
   mainVpnIp = hosts.main.vpnIp;
   kotekIp   = hosts.kotek.public;
+  kotekVpnIp = hosts.kotek.vpnIp;
   piesekIp  = hosts.piesek.public;
   acmeKeyName = "rfc2136key.${domain}.";
 
@@ -17,7 +18,7 @@ let
   masterAcl     = [ "${mainIp}/32" ];
   aclEntries = entries: lib.concatStringsSep " " (map (entry: "${entry};") entries);
 
-  serial = "2025010103";
+  serial = "2025010104";
 
   mainZone = pkgs.writeText "${domain}.zone" ''
     $TTL 30      ; Default TTL (30 seconds)
@@ -45,7 +46,7 @@ let
     *       IN      A       ${mainIp}
 
 
-    navidrome       IN      A       ${mainVpnIp}
+    navidrome       IN      A       ${kotekVpnIp}
     grafana       IN      A       ${mainVpnIp}
   '';
 

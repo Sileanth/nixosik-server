@@ -1,0 +1,58 @@
+---
+- name: Migrate Navidrome state and library from main to kotek
+  hosts: main
+  remote_user: sileanth
+  vars:
+    navidrome_state_dir: /var/lib/navidrome
+    navidrome_stage_dir: /tmp/navidrome-state
+    acme_env_file: /var/lib/bind/acme-rfc2136.env
+    acme_nameserver: 10.200.0.1:53
+  tasks:
+    - name: Stop Navidrome on main
+      become: true
+      ansible.builtin.systemd:
+        name: navidrome.service
+        state: stopped
+      failed_when: false
+
+    - name: Read ACME RFC2136 environment from main
+      become: true
+      ansible.builtin.slurp:
+        src: "{{ acme_env_file }}"
+      register: acme_env
+
+    - name: Install ACME RFC2136 environment on kotek
+      become: true
+      delegate_to: kotek
+      ansible.builtin.copy:
+        dest: "{{ acme_env_file }}"
+        owner: root
+        group: root
+        mode: '0400'
+        content: >-
+          {{
+            acme_env.content
+            | b64decode
+            | regex_replace("RFC2136_NAMESERVER='[^']+'", "RFC2136_NAMESERVER='" ~ acme_nameserver ~ "'")
+          }}
+
+    - name: Copy Navidrome state and library to kotek staging
+      ansible.builtin.command:
+        cmd: >
+          sudo rsync -a --delete
+          --rsync-path="sudo install -d -m 0755 {{ navidrome_stage_dir }} && sudo rsync"
+          "{{ navidrome_state_dir }}/"
+          "sileanth@kotek:{{ navidrome_stage_dir }}/"
+
+    - name: Install migrated Navidrome state on kotek
+      become: true
+      delegate_to: kotek
+      ansible.builtin.command:
+        cmd: rsync -a --delete --chown=navidrome:navidrome "{{ navidrome_stage_dir }}/" "{{ navidrome_state_dir }}/"
+
+    - name: Start Navidrome on kotek
+      become: true
+      delegate_to: kotek
+      ansible.builtin.systemd:
+        name: navidrome.service
+        state: started

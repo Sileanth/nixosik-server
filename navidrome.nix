@@ -1,13 +1,10 @@
 { config, lib, pkgs, name, hostInfo, hosts, ... }:
 
 let
-  isMain = name == "main";
-
-
-
+  isKotek = name == "kotek";
 in
 {
-  services.navidrome = lib.mkIf isMain {
+  services.navidrome = lib.mkIf isKotek {
     enable = true;
     # settings.MusicFolder = "/mnt/audio/music";
   };

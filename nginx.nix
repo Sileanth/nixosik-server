@@ -4,6 +4,9 @@ let
   domain = "sileanth.pl";
   acmeEmail = "admin@${domain}";
   acmeEnvFile = "/var/lib/bind/acme-rfc2136.env";
+  isMain = name == "main";
+  isKotek = name == "kotek";
+  enableNginx = isMain || isKotek;
   localNetworks = [
     "10.0.0.0/24"
     "10.200.0.0/24"
@@ -17,20 +20,80 @@ let
     forceSSL = true;
     acmeRoot = null;
   };
+
+  navidromeVhost = {
+    "navidrome.${domain}" = commonVhost // {
+      locations."/" = {
+        extraConfig = ''
+          ${allowLocalNetworks}
+          deny all;
+        '';
+        proxyPass = "http://127.0.0.1:4533";
+      };
+    };
+  };
+
+  mainVhosts = {
+    "${domain}" = commonVhost // {
+      locations."/".extraConfig = ''
+        default_type text/plain;
+        return 200 "sileanth.pl\n";
+      '';
+    };
+
+    "public.${domain}" = commonVhost // {
+      locations."/".extraConfig = ''
+        default_type text/plain;
+        return 200 "public example\n";
+      '';
+    };
+
+    "kot.${domain}" = commonVhost // {
+      locations."/".extraConfig = ''
+        allow 127.0.0.1;
+        allow 10.200.0.0/24;
+        allow ::1;
+        deny all;
+        default_type text/plain;
+        return 200 "public example\n";
+      '';
+    };
+
+    "private.${domain}" = commonVhost // {
+      locations."/" = {
+        extraConfig = ''
+          ${allowLocalNetworks}
+          deny all;
+        '';
+        root = pkgs.writeTextDir "index.html" "private example";
+      };
+    };
+
+    "grafana.${domain}" = commonVhost // {
+      locations."/" = {
+        extraConfig = ''
+          ${allowLocalNetworks}
+          deny all;
+        '';
+        proxyPass = "http://127.0.0.1:3000";
+      };
+    };
+  };
 in
 {
-  config = lib.mkIf (name == "main") {
+  config = lib.mkIf enableNginx {
     security.acme = {
       acceptTerms = true;
       defaults = {
         email = acmeEmail;
+      } // lib.optionalAttrs (isMain || isKotek) {
         dnsProvider = "rfc2136";
         environmentFile = acmeEnvFile;
         dnsPropagationCheck = false;
       };
     };
 
-    systemd.services.nginx.after = [ "bind.service" ];
+    systemd.services.nginx.after = lib.mkIf isMain [ "bind.service" ];
 
     services.caddy.enable = false;
 
@@ -41,63 +104,9 @@ in
       recommendedGzipSettings = true;
       recommendedProxySettings = true;
 
-      virtualHosts = {
-        "${domain}" = commonVhost // {
-          locations."/".extraConfig = ''
-            default_type text/plain;
-            return 200 "sileanth.pl\n";
-          '';
-        };
-
-        "public.${domain}" = commonVhost // {
-          locations."/".extraConfig = ''
-            default_type text/plain;
-            return 200 "public example\n";
-          '';
-        };
-
-        "kot.${domain}" = commonVhost // {
-          locations."/".extraConfig = ''
-            allow 127.0.0.1;
-            allow 10.200.0.0/24;
-            allow ::1;
-            deny all;
-            default_type text/plain;
-            return 200 "public example\n";
-          '';
-        };
-
-        "private.${domain}" = commonVhost // {
-          locations."/" = {
-            extraConfig = ''
-              ${allowLocalNetworks}
-              deny all;
-            '';
-            root = pkgs.writeTextDir "index.html" "private example";
-          };
-        };
-
-
-        "navidrome.${domain}" = commonVhost // {
-          locations."/" = {
-            extraConfig = ''
-              ${allowLocalNetworks}
-              deny all;
-            '';
-            proxyPass = "http://127.0.0.1:4533";
-          };
-        };
-
-        "grafana.${domain}" = commonVhost // {
-          locations."/" = {
-            extraConfig = ''
-              ${allowLocalNetworks}
-              deny all;
-            '';
-            proxyPass = "http://127.0.0.1:3000";
-          };
-        };
-      };
+      virtualHosts =
+        lib.optionalAttrs isMain mainVhosts
+        // lib.optionalAttrs isKotek navidromeVhost;
     };
 
     networking.firewall.allowedTCPPorts = [ 80 443 ];
