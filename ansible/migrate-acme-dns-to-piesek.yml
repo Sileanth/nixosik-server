@@ -1,0 +1,41 @@
+---
+- name: Migrate ACME RFC2136 DNS credentials from main to piesek
+  hosts: main
+  remote_user: sileanth
+  vars:
+    acme_target_host: piesek
+    acme_env_file: /var/lib/bind/acme-rfc2136.env
+    acme_nameserver: 10.200.0.1:53
+  tasks:
+    - name: Read ACME RFC2136 environment from main
+      become: true
+      ansible.builtin.slurp:
+        src: "{{ acme_env_file }}"
+      register: acme_env
+      no_log: true
+
+    - name: Ensure ACME environment directory exists on target
+      become: true
+      delegate_to: "{{ acme_target_host }}"
+      ansible.builtin.file:
+        path: "{{ acme_env_file | dirname }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Install ACME RFC2136 environment on target
+      become: true
+      delegate_to: "{{ acme_target_host }}"
+      ansible.builtin.copy:
+        dest: "{{ acme_env_file }}"
+        owner: root
+        group: root
+        mode: '0400'
+        content: >-
+          {{
+            acme_env.content
+            | b64decode
+            | regex_replace("RFC2136_NAMESERVER='[^']+'", "RFC2136_NAMESERVER='" ~ acme_nameserver ~ "'")
+          }}
+      no_log: true
