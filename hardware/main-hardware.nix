@@ -22,6 +22,9 @@
   swapDevices = [ ];
 
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
-    boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot = {
+    enable = true;
+    configurationLimit = 3;
+  };
   boot.loader.efi.canTouchEfiVariables = true;
 }
