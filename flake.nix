@@ -25,6 +25,7 @@
         ./auto-upgrade.nix
         ./monitoring.nix
         ./navidrome.nix
+        ./audiobookshelf.nix
       ];
     };
     hostsToBuild = nixpkgs.lib.filterAttrs (n: v: !(v.isClient or false)) hosts;

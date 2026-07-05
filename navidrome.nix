@@ -8,7 +8,7 @@ in
     enable = true;
     # settings.MusicFolder = "/mnt/audio/music";
     settings = {
-      MusicFolder = "/var/lib/navidrome";
+      # MusicFolder = "/var/lib/navidrome";
     };
   };
 }

@@ -6,7 +6,8 @@ let
   acmeEnvFile = "/var/lib/bind/acme-rfc2136.env";
   isMain = name == "main";
   isKotek = name == "kotek";
-  enableNginx = isMain || isKotek;
+  isPiesek = name == "piesek";
+  enableNginx = isMain || isKotek || isPiesek;
   localNetworks = [
     "10.0.0.0/24"
     "10.200.0.0/24"
@@ -29,6 +30,18 @@ let
           deny all;
         '';
         proxyPass = "http://127.0.0.1:4533";
+      };
+    };
+  };
+
+  audiobookshelfVhost = {
+    "audiobookshelf.${domain}" = commonVhost // {
+      locations."/" = {
+        extraConfig = ''
+          ${allowLocalNetworks}
+          deny all;
+        '';
+        proxyPass = "http://127.0.0.1:8000";
       };
     };
   };
@@ -86,7 +99,7 @@ in
       acceptTerms = true;
       defaults = {
         email = acmeEmail;
-      } // lib.optionalAttrs (isMain || isKotek) {
+      } // lib.optionalAttrs (isMain || isKotek || isPiesek) {
         dnsProvider = "rfc2136";
         environmentFile = acmeEnvFile;
         dnsPropagationCheck = false;
@@ -106,7 +119,8 @@ in
 
       virtualHosts =
         lib.optionalAttrs isMain mainVhosts
-        // lib.optionalAttrs isKotek navidromeVhost;
+        // lib.optionalAttrs isKotek navidromeVhost
+        // lib.optionalAttrs isPiesek audiobookshelfVhost;
     };
 
     networking.firewall.allowedTCPPorts = [ 80 443 ];
