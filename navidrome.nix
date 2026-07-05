@@ -7,5 +7,8 @@ in
   services.navidrome = lib.mkIf isKotek {
     enable = true;
     # settings.MusicFolder = "/mnt/audio/music";
+    settings = {
+      MusicFolder = "/var/lib/navidrome";
+    };
   };
 }
